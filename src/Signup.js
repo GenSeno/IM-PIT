@@ -37,11 +37,11 @@ function SignupPage() {
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    console.log(value)
+    console.log(value);
   };
 
   const handleSubmit = async (e) => {
@@ -49,23 +49,23 @@ function SignupPage() {
     setIsError(false);
 
     try {
-      const { data: signUpData, error: signUpError } = await serveSupabaseClient.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data: signUpData, error: signUpError } =
+        await serveSupabaseClient.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        });
 
       if (signUpError) {
         setIsError(true);
         setErrorMessage(signUpError.message);
-        console.log(signUpError.message)
+        console.log(signUpError.message);
         return;
       }
 
       const { user } = signUpData;
 
-      const { data: insertUserLoginData, error: insertUserLoginError } = await serveSupabaseClient
-        .from("Userlogin")
-        .insert([
+      const { data: insertUserLoginData, error: insertUserLoginError } =
+        await serveSupabaseClient.from("Userlogin").insert([
           {
             email: formData.email,
             phone: formData.phoneNumber,
@@ -76,7 +76,7 @@ function SignupPage() {
       if (insertUserLoginError) {
         setIsError(true);
         setErrorMessage(insertUserLoginError.message);
-        console.log(insertUserLoginError.message)
+        console.log(insertUserLoginError.message);
         return;
       }
 
@@ -88,11 +88,10 @@ function SignupPage() {
         .single();
 
       const userlogin_id = userData.id;
-      console.log(userData)
+      console.log(userData);
 
-      const { data: insertStaffData, error: insertStaffError } = await serveSupabaseClient
-        .from("Staff")
-        .insert([
+      const { data: insertStaffData, error: insertStaffError } =
+        await serveSupabaseClient.from("Staff").insert([
           {
             FirstName: formData.firstName,
             LastName: formData.lastName,
@@ -107,18 +106,17 @@ function SignupPage() {
       if (insertStaffError) {
         setIsError(true);
         setErrorMessage(insertStaffError.message);
-        console.log(insertStaffError.message)
+        console.log(insertStaffError.message);
         return;
       }
 
       navigate("/");
     } catch (error) {
-      console.error('Error during signup and staff insertion:', error.message);
+      console.error("Error during signup and staff insertion:", error.message);
       setIsError(true);
       setErrorMessage(error.message);
     }
   };
-
 
   const handleRedirection = async () => {
     const {
@@ -209,7 +207,13 @@ function SignupPage() {
             />
             <input
               type="date"
-              style={{ borderColor: 'gray', paddingLeft: 8, paddingRight: 8, borderRadius: 8, width: "45%" }}
+              style={{
+                borderColor: "gray",
+                paddingLeft: 8,
+                paddingRight: 8,
+                borderRadius: 8,
+                width: "45%",
+              }}
               value={formData.dateOfBirth}
               name="dateOfBirth"
               onChange={handleChange} // Handle date input changes
@@ -230,13 +234,21 @@ function SignupPage() {
               aria-labelledby="demo-radio-buttons-group-label"
               defaultValue="male"
               name="sex"
-              style={{ display: 'flex', flexDirection: 'row' }}
+              style={{ display: "flex", flexDirection: "row" }}
               onChange={handleChange}
               value={formData.sex}
             >
               <FormControlLabel value="male" control={<Radio />} label="Male" />
-              <FormControlLabel value="female" control={<Radio />} label="Female" />
-              <FormControlLabel value="other" control={<Radio />} label="Other" />
+              <FormControlLabel
+                value="female"
+                control={<Radio />}
+                label="Female"
+              />
+              <FormControlLabel
+                value="other"
+                control={<Radio />}
+                label="Other"
+              />
             </RadioGroup>
           </Stack>
           <FormControlLabel

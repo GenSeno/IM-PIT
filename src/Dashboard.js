@@ -9,8 +9,6 @@ import {
   Tabs,
   Tab,
   Box,
-  Card,
-  CardContent,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
