@@ -17,10 +17,6 @@ import serveSupabaseClient from "./client/client";
 import { ArrowDownwardRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import TabPanel from "./components/tab_panel";
-import {
-  WardSelectComponent,
-  SuppliesSelectComponent,
-} from "./components/select_component";
 import DashboardHeader from "./components/dashboard_header";
 import {
   useFetchPatients,
@@ -29,6 +25,8 @@ import {
   useFetchUserData,
   useFetchWards,
 } from "./client/fetch_hooks";
+import WardComponent from "./components/ward_component";
+import SuppliesComponent from "./components/supplies_component";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -40,7 +38,7 @@ function DashboardPage() {
   const patients = useFetchPatients();
 
   const [selectedWard, setSelectedWard] = useState("Oncology");
-  const [selectedSupply, setSelectedSupply] = useState("Gauze Pads");
+  const [selectedSupply, setSelectedSupply] = useState("Gloves");
 
   const [selectedWardData, setSelectedWardData] = useState(null);
   const [selectedSupplyData, setSelectedSupplyData] = useState(null);
@@ -127,65 +125,20 @@ function DashboardPage() {
               </Tabs>
             </Stack>
             <TabPanel value={tabValue} index={0}>
-              <Stack direction="row" gap={2}>
-                <WardSelectComponent
-                  helper_text="Select a ward to display"
-                  value={selectedWard}
-                  onChange={handleSelectWardChange}
-                  data={wards}
-                />
-                {selectedSupplyData != null ? (
-                  <Card sx={{ p: 1, my: 2, ml: 2, width: "80%" }}>
-                    <CardContent>
-                      <Typography>
-                        <b>Location</b>: {selectedWardData[0].Location} (
-                        {selectedWardData[0].TelephoneExtension})
-                      </Typography>
-                      <Typography>
-                        <b>Total beds</b>: {selectedWardData[0].TotalBeds}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Skeleton />
-                )}
-              </Stack>
+              <WardComponent
+                selectedWard={selectedWard}
+                handleSelectWardChange={handleSelectWardChange}
+                wards={wards}
+                selectedWardData={selectedWardData}
+              />
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-              <Stack direction="row" gap={2}>
-                <SuppliesSelectComponent
-                  helper_text="Select a supply to display"
-                  value={selectedSupply}
-                  onChange={handleSelectSupplyChange}
-                  data={supplies}
-                />
-                {selectedSupplyData && selectedSupplyData.length > 0 ? (
-                  <Card sx={{ p: 1, my: 2, ml: 2, width: "80%" }}>
-                    <CardContent>
-                      <Typography gutterBottom>
-                        {selectedSupplyData[0].ItemDescription}
-                      </Typography>
-                      <Typography>
-                        <b>Category</b>: {selectedSupplyData[0].Category}
-                      </Typography>
-                      <Typography>
-                        <b>Cost per unit</b>:{" "}
-                        {selectedSupplyData[0].CostPerUnit}
-                      </Typography>
-                      <Typography>
-                        <b>Quantity in stock</b>:{" "}
-                        {selectedSupplyData[0].QuantityInStock}
-                      </Typography>
-                      <Typography>
-                        <b>Reorder level</b>:{" "}
-                        {selectedSupplyData[0].ReorderLevel}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Skeleton />
-                )}
-              </Stack>
+              <SuppliesComponent
+                value={selectedSupply}
+                handleSelectSupplyChange={handleSelectSupplyChange}
+                supplies={supplies}
+                selectedSupplyData={selectedSupplyData}
+              />
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
               <Stack direction="row" gap={2} flexWrap="wrap">
