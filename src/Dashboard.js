@@ -3,7 +3,6 @@ import {
   Stack,
   Typography,
   Skeleton,
-  Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -15,22 +14,30 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
-import { ArrowBack, ArrowDownwardRounded } from "@mui/icons-material";
+import { ArrowDownwardRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import TabPanel from "./components/tab_panel";
 import {
   WardSelectComponent,
   SuppliesSelectComponent,
 } from "./components/select_component";
+import DashboardHeader from "./components/dashboard_header";
+import {
+  useFetchPatients,
+  useFetchStaffs,
+  useFetchSupplies,
+  useFetchUserData,
+  useFetchWards,
+} from "./client/fetch_hooks";
 
 function DashboardPage() {
-  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
-  const [wards, setWards] = useState(null);
-  const [supplies, setSupplies] = useState(null);
-  const [staffs, setStaffs] = useState(null);
-  const [patients, setPatients] = useState(null);
+  const userData = useFetchUserData();
+  const wards = useFetchWards();
+  const supplies = useFetchSupplies();
+  const staffs = useFetchStaffs();
+  const patients = useFetchPatients();
 
   const [selectedWard, setSelectedWard] = useState("Oncology");
   const [selectedSupply, setSelectedSupply] = useState("Gauze Pads");
@@ -39,89 +46,6 @@ function DashboardPage() {
   const [selectedSupplyData, setSelectedSupplyData] = useState(null);
 
   const [tabValue, setTabValue] = useState(0);
-
-  const fetchUserData = async () => {
-    const { data: user } = await serveSupabaseClient.auth.getUser();
-    if (user) {
-      const { data: userProfile } = await serveSupabaseClient
-        .from("Userlogin")
-        .select("id")
-        .eq("email", user.user.email)
-        .single();
-
-      const { data: staffProfile } = await serveSupabaseClient
-        .from("Staff")
-        .select(
-          "FirstName, LastName, FullAddress, PositionHeld, Userlogin (id), userlogin_id"
-        )
-        .eq("userlogin_id", userProfile.id);
-
-      setUserData(staffProfile);
-    }
-  };
-
-  const handleLogout = async (e) => {
-    e.preventDefault();
-    const { error } = await serveSupabaseClient.auth.signOut();
-    if (error) {
-      console.error("Error during logout:", error.message);
-    } else {
-      navigate("/");
-    }
-  };
-
-  const fetchWards = async () => {
-    const { data: wardData } = await serveSupabaseClient
-      .from("Ward")
-      .select("*");
-    setWards(wardData);
-  };
-
-  const fetchSupplies = async () => {
-    const { data: suppliesData } = await serveSupabaseClient
-      .from("Supply")
-      .select("*");
-    setSupplies(suppliesData);
-  };
-
-  const fetchStaffs = async () => {
-    const { data: staffsData } = await serveSupabaseClient
-      .from("Staff")
-      .select("*");
-    setStaffs(staffsData);
-  };
-
-  const fetchPatients = async () => {
-    const { data: patientData } = await serveSupabaseClient
-      .from("Patient")
-      .select("*");
-    setPatients(patientData);
-  };
-
-  const handleRedirection = async () => {
-    const {
-      data: { session: currentSession },
-      error,
-    } = await serveSupabaseClient.auth.getSession();
-
-    if (error) {
-      console.error("Error fetching session:", error.message);
-    }
-
-    if (!currentSession) {
-      navigate("/");
-    } else {
-      fetchUserData();
-      fetchWards();
-      fetchSupplies();
-      fetchStaffs();
-      fetchPatients();
-    }
-  };
-
-  useEffect(() => {
-    handleRedirection();
-  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -136,6 +60,22 @@ function DashboardPage() {
   };
 
   useEffect(() => {
+    const handleRedirection = async () => {
+      const {
+        data: { session: currentSession },
+        error,
+      } = await serveSupabaseClient.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching session:", error.message);
+      }
+
+      if (!currentSession) {
+        navigate("/");
+      } else {
+      }
+    };
+
     const renderSelectedWard = async () => {
       const { data: selectedData, error } = await serveSupabaseClient
         .from("Ward")
@@ -165,39 +105,12 @@ function DashboardPage() {
 
     renderSelectedWard();
     renderSelectedSupply();
-  }, [selectedWard, selectedSupply]);
+    handleRedirection();
+  }, [selectedWard, selectedSupply, navigate]);
 
   return (
     <Container fixed>
-      {userData != null ? (
-        <Stack direction="row" justifyContent="space-between" sx={{ py: 2 }}>
-          <Stack direction="column">
-            <Typography variant="h5" component="div" fontWeight={500}>
-              {userData[0].FirstName} {userData[0].LastName}
-            </Typography>
-            <Typography variant="body1" component="div" color="text.secondary">
-              {userData[0].PositionHeld != null
-                ? userData[0].PositionHeld
-                : "Waiting for activation"}
-            </Typography>
-          </Stack>
-          <Stack>
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBack />}
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </Stack>
-        </Stack>
-      ) : (
-        <Stack sx={{ p: 2 }}>
-          <Skeleton animation="wave" />
-          <Skeleton animation="wave" />
-          <Skeleton animation="wave" />
-        </Stack>
-      )}
+      <DashboardHeader userData={userData} />
 
       {userData != null ? (
         userData[0].PositionHeld != null ? (
