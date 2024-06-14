@@ -257,7 +257,12 @@ function DashboardPage() {
           </Typography>
         )
       ) : (
-        <Skeleton animation="wave" />
+        <>
+          <Skeleton animation="wave" />
+          <Skeleton animation="wave" />
+          <Skeleton animation="wave" />
+          <Skeleton animation="wave" />
+        </>
       )}
     </Container>
   );
