@@ -10,10 +10,6 @@ import {
   Tabs,
   Tab,
   Box,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormHelperText,
   Card,
   CardContent,
 } from "@mui/material";
@@ -22,7 +18,10 @@ import serveSupabaseClient from "./client/client";
 import { ArrowBack, ArrowDownwardRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import TabPanel from "./components/tab_panel";
-import { WardSelectComponent, SuppliesSelectComponent } from "./components/select_component";
+import {
+  WardSelectComponent,
+  SuppliesSelectComponent,
+} from "./components/select_component";
 
 function DashboardPage() {
   const [userData, setUserData] = useState(null);
@@ -50,8 +49,12 @@ function DashboardPage() {
         .eq("email", user.user.email)
         .single();
 
-      const { data: staffProfile } = await serveSupabaseClient.from("Staff")
-        .select("FirstName, LastName, FullAddress, PositionHeld, Userlogin (id), userlogin_id").eq('userlogin_id', userProfile.id)
+      const { data: staffProfile } = await serveSupabaseClient
+        .from("Staff")
+        .select(
+          "FirstName, LastName, FullAddress, PositionHeld, Userlogin (id), userlogin_id"
+        )
+        .eq("userlogin_id", userProfile.id);
 
       setUserData(staffProfile);
     }
@@ -78,7 +81,7 @@ function DashboardPage() {
     const { data: suppliesData } = await serveSupabaseClient
       .from("Supply")
       .select("*");
-    setSupplies(suppliesData)
+    setSupplies(suppliesData);
   };
 
   const fetchStaffs = async () => {
@@ -86,12 +89,13 @@ function DashboardPage() {
       .from("Staff")
       .select("*");
     setStaffs(staffsData);
-  }
+  };
 
   const fetchPatients = async () => {
     const { data: patientData } = await serveSupabaseClient
-      .from('Patient').select('*')
-    setPatients(patientData)
+      .from("Patient")
+      .select("*");
+    setPatients(patientData);
   };
 
   const handleRedirection = async () => {
@@ -128,15 +132,15 @@ function DashboardPage() {
   };
 
   const handleSelectSupplyChange = (event) => {
-    setSelectedSupply(event.target.value)
-  }
+    setSelectedSupply(event.target.value);
+  };
 
   useEffect(() => {
     const renderSelectedWard = async () => {
       const { data: selectedData, error } = await serveSupabaseClient
         .from("Ward")
         .select("*")
-        .eq('WardName', selectedWard);
+        .eq("WardName", selectedWard);
 
       if (error) {
         console.error("Error fetching selected ward data:", error);
@@ -149,24 +153,18 @@ function DashboardPage() {
       const { data: selectedData, error } = await serveSupabaseClient
         .from("Supply")
         .select("*")
-        .eq('ItemName', selectedSupply);
-      console.log(selectedData)
+        .eq("ItemName", selectedSupply);
+      console.log(selectedData);
 
       if (error) {
-        console.error("Error fetching selected ward data:", error);
+        console.error("Error fetching selected supply data:", error);
       } else {
         setSelectedSupplyData(selectedData);
       }
     };
 
-    if (selectedWard) {
-      renderSelectedWard();
-    }
-
-    if (selectedSupply) {
-      renderSelectedSupply();
-    }
-
+    renderSelectedWard();
+    renderSelectedSupply();
   }, [selectedWard, selectedSupply]);
 
   return (
@@ -178,7 +176,9 @@ function DashboardPage() {
               {userData[0].FirstName} {userData[0].LastName}
             </Typography>
             <Typography variant="body1" component="div" color="text.secondary">
-              {userData[0].PositionHeld != null ? userData[0].PositionHeld : "Waiting for activation"}
+              {userData[0].PositionHeld != null
+                ? userData[0].PositionHeld
+                : "Waiting for activation"}
             </Typography>
           </Stack>
           <Stack>
@@ -202,7 +202,10 @@ function DashboardPage() {
       {userData != null ? (
         userData[0].PositionHeld != null ? (
           <>
-            <Stack sx={{ borderBottom: 1, borderColor: "divider" }} direction="row">
+            <Stack
+              sx={{ borderBottom: 1, borderColor: "divider" }}
+              direction="row"
+            >
               <Tabs value={tabValue} onChange={handleTabChange}>
                 <Tab label="Wards" />
                 <Tab label="Supplies" />
@@ -210,14 +213,24 @@ function DashboardPage() {
                 <Tab label="Patients" />
               </Tabs>
             </Stack>
-            <TabPanel value={tabValue} index={0} >
+            <TabPanel value={tabValue} index={0}>
               <Stack direction="row" gap={2}>
-                <WardSelectComponent helper_text="Select a ward to display" value={selectedWard} onChange={handleSelectWardChange} data={wards} />
+                <WardSelectComponent
+                  helper_text="Select a ward to display"
+                  value={selectedWard}
+                  onChange={handleSelectWardChange}
+                  data={wards}
+                />
                 {selectedSupplyData != null ? (
                   <Card sx={{ p: 1, my: 2, ml: 2, width: "80%" }}>
                     <CardContent>
-                      <Typography><b>Location</b>: {selectedWardData[0].Location} ({selectedWardData[0].TelephoneExtension})</Typography>
-                      <Typography><b>Total beds</b>: {selectedWardData[0].TotalBeds}</Typography>
+                      <Typography>
+                        <b>Location</b>: {selectedWardData[0].Location} (
+                        {selectedWardData[0].TelephoneExtension})
+                      </Typography>
+                      <Typography>
+                        <b>Total beds</b>: {selectedWardData[0].TotalBeds}
+                      </Typography>
                     </CardContent>
                   </Card>
                 ) : (
@@ -226,16 +239,34 @@ function DashboardPage() {
               </Stack>
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-              <Stack direction="row" gap={2} >
-                <SuppliesSelectComponent helper_text="Select a supply to display" value={selectedSupply} onChange={handleSelectSupplyChange} data={supplies} />
-                {selectedSupplyData != null ? (
+              <Stack direction="row" gap={2}>
+                <SuppliesSelectComponent
+                  helper_text="Select a supply to display"
+                  value={selectedSupply}
+                  onChange={handleSelectSupplyChange}
+                  data={supplies}
+                />
+                {selectedSupplyData && selectedSupplyData.length > 0 ? (
                   <Card sx={{ p: 1, my: 2, ml: 2, width: "80%" }}>
                     <CardContent>
-                      <Typography gutterBottom>{selectedSupplyData[0].ItemDescription}</Typography>
-                      <Typography><b>Category</b>: {selectedSupplyData[0].Category}</Typography>
-                      <Typography><b>Cost per unit</b>: {selectedSupplyData[0].CostPerUnit}</Typography>
-                      <Typography><b>Quantity in stock</b>: {selectedSupplyData[0].QuantityInStock}</Typography>
-                      <Typography><b>Reorder level</b>: {selectedSupplyData[0].ReorderLevel}</Typography>
+                      <Typography gutterBottom>
+                        {selectedSupplyData[0].ItemDescription}
+                      </Typography>
+                      <Typography>
+                        <b>Category</b>: {selectedSupplyData[0].Category}
+                      </Typography>
+                      <Typography>
+                        <b>Cost per unit</b>:{" "}
+                        {selectedSupplyData[0].CostPerUnit}
+                      </Typography>
+                      <Typography>
+                        <b>Quantity in stock</b>:{" "}
+                        {selectedSupplyData[0].QuantityInStock}
+                      </Typography>
+                      <Typography>
+                        <b>Reorder level</b>:{" "}
+                        {selectedSupplyData[0].ReorderLevel}
+                      </Typography>
                     </CardContent>
                   </Card>
                 ) : (
@@ -265,7 +296,8 @@ function DashboardPage() {
                             <b>Position:</b> {e.PositionHeld}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
-                            <b>Sex:</b> {e.Sex === 'M' || e.Sex === 'm' ? 'Male' : 'Female'}
+                            <b>Sex:</b>{" "}
+                            {e.Sex === "M" || e.Sex === "m" ? "Male" : "Female"}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
                             <b>Telephone Number:</b> {e.TelephoneNumber}
@@ -293,7 +325,11 @@ function DashboardPage() {
                     <Stack component="div" key={e.SupplyID}>
                       <Accordion>
                         <AccordionSummary expandIcon={<ArrowDownwardRounded />}>
-                          <Typography variant="body1" fontWeight={500} style={{ textTransform: "capitalize" }}>
+                          <Typography
+                            variant="body1"
+                            fontWeight={500}
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {e.FirstName} {e.LastName}
                           </Typography>
                         </AccordionSummary>
@@ -301,19 +337,35 @@ function DashboardPage() {
                           <Typography variant="body1" color="text.secondary">
                             <b>Patient Number:</b> {e.PatientID}
                           </Typography>
-                          <Typography variant="body1" color="text.secondary" style={{ textTransform: "capitalize" }}>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <b>Patient Type:</b> {e.PatientType}
                           </Typography>
-                          <Typography variant="body1" color="text.secondary" style={{ textTransform: "capitalize" }}>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <b>Marital Status:</b> {e.MaritalStatus}
                           </Typography>
-                          <Typography variant="body1" color="text.secondary" style={{ textTransform: "capitalize" }}>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <b>Address:</b> {e.FullAddress}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
                             <b>Registration Date:</b> {e.RegistrationDate}
                           </Typography>
-                          <Typography variant="body1" color="text.secondary" style={{ textTransform: "capitalize" }}>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <b> Sex:</b> {e.Sex}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
@@ -334,15 +386,14 @@ function DashboardPage() {
             </TabPanel>
           </>
         ) : (
-          <Typography variant="body1">Please contact your system administrator.</Typography>
+          <Typography variant="body1">
+            Please contact your system administrator.
+          </Typography>
         )
       ) : (
         <Skeleton animation="wave" />
-      )
-      }
-
-
-    </Container >
+      )}
+    </Container>
   );
 }
 
