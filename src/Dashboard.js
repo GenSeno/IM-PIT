@@ -183,11 +183,7 @@ function DashboardPage() {
               </Stack>
             </TabPanel>
             <TabPanel value={tabValue} index={3}>
-<<<<<<< HEAD
               <Stack direction="column" gap={2} flexWrap="wrap">
-=======
-              <Stack direction="row" gap={2} flexWrap="wrap">
->>>>>>> 545a93ef4fbf697aef044d31c131dc61bda1ca7c
                 {patients != null ? (
                   patients.map((e) => (
                     <Stack component="div" key={e.SupplyID}>
