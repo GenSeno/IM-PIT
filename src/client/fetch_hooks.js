@@ -96,6 +96,7 @@ export const useFetchStaffs = () => {
   const fetchStaffs = async () => {
     const { data: staffsData, error: staffsError } =
       await serveSupabaseClient.from("Staff").select(`
+        StaffID,
     FirstName,
     LastName,
     FullAddress,
