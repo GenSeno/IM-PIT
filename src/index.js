@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import DashboardPage from "./Dashboard";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const router = createBrowserRouter([
   {
@@ -48,8 +49,10 @@ const themeOptions = createTheme({
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={themeOptions}>
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={themeOptions}>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </LocalizationProvider>
   </React.StrictMode>
 );

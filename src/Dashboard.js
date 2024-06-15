@@ -90,7 +90,6 @@ function DashboardPage() {
         .from("Supply")
         .select("*")
         .eq("ItemName", selectedSupply);
-      console.log(selectedData);
 
       if (error) {
         console.error("Error fetching selected supply data:", error);
@@ -122,6 +121,8 @@ function DashboardPage() {
                 <Tab label="Patients" />
               </Tabs>
             </Stack>
+
+            {/* WARDS */}
             <TabPanel value={tabValue} index={0}>
               <WardComponent
                 selectedWard={selectedWard}
@@ -130,6 +131,9 @@ function DashboardPage() {
                 selectedWardData={selectedWardData}
               />
             </TabPanel>
+            {/* WARDS */}
+
+            {/* SUPPLIES */}
             <TabPanel value={tabValue} index={1}>
               <SuppliesComponent
                 value={selectedSupply}
@@ -138,6 +142,9 @@ function DashboardPage() {
                 selectedSupplyData={selectedSupplyData}
               />
             </TabPanel>
+            {/* SUPPLIES */}
+
+            {/* STAFFS */}
             <TabPanel value={tabValue} index={2}>
               <Stack direction="row" gap={2} flexWrap="wrap">
                 {staffs != null ? (
@@ -169,6 +176,80 @@ function DashboardPage() {
                           <Typography variant="body1" color="text.secondary">
                             <b>Date of Birth:</b> {e.DateOfBirth}
                           </Typography>
+
+                          {/* WORK EXPERIENCE CONTAINER */}
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ArrowDownwardRounded />}
+                            >
+                              <Typography variant="body2">
+                                Work Experience
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Organization:</b>{" "}
+                                {e.WorkExperience.OrganizationName}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Position:</b> {e.WorkExperience.Position}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Start Date:</b> {e.WorkExperience.StartDate}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>End Date:</b> {e.WorkExperience.EndDate}
+                              </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+                          {/* WORK EXPERIENCE CONTAINER */}
+
+                          {/* QUALIFICATION CONTAINER */}
+                          <Accordion>
+                            <AccordionSummary
+                              expandIcon={<ArrowDownwardRounded />}
+                            >
+                              <Typography variant="body2">
+                                Qualification
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Organization:</b>{" "}
+                                {e.Qualification.InstitutionName}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Position:</b>{" "}
+                                {e.Qualification.QualificationDate}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                color="text.secondary"
+                              >
+                                <b>Start Date:</b>{" "}
+                                {e.Qualification.QualificationType}
+                              </Typography>
+                            </AccordionDetails>
+                          </Accordion>
+                          {/* QUALIFICATION CONTAINER */}
                         </AccordionDetails>
                       </Accordion>
                     </Stack>
@@ -182,6 +263,8 @@ function DashboardPage() {
                 )}
               </Stack>
             </TabPanel>
+            {/* STAFFS */}
+
             <TabPanel value={tabValue} index={3}>
               <Stack direction="column" gap={2} flexWrap="wrap">
                 {patients != null ? (
