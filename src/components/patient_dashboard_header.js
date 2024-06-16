@@ -75,9 +75,11 @@ function PatientDashboardHeader(props) {
               variant="body2"
               sx={{ color: "#00695c", textTransform: "capitalize" }}
             >
-              {props.patient.PatientType != null
-                ? props.patient.PatientType
-                : "Waiting for props.patient whatever"}
+              {props.patient.PatientType != null ? (
+                props.patient.PatientType
+              ) : (
+                <Skeleton />
+              )}
             </Typography>
           </Stack>
           <Button

@@ -1,4 +1,3 @@
-import { KeyRounded } from "@mui/icons-material";
 import {
   Container,
   Typography,
@@ -12,8 +11,6 @@ import {
   RadioGroup,
   Radio,
   FormLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
