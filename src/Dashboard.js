@@ -154,10 +154,15 @@ function DashboardPage() {
             <TabPanel value={tabValue} index={2}>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <StaffsWithPositionsComponent staffs={staffs} />
+                  <Typography sx={{ textTransform: 'capitalize' }}>
+                    <StaffsWithPositionsComponent staffs={staffs} />
+                  </Typography>
+
                 </Grid>
                 <Grid item xs={6}>
-                  <StaffsWithNoPositionsComponent staffs={staffs} />
+                  <Typography sx={{ textTransform: 'capitalize' }}>
+                    <StaffsWithNoPositionsComponent staffs={staffs} />
+                  </Typography>
                 </Grid>
               </Grid>
             </TabPanel>

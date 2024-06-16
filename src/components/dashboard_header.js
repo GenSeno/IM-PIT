@@ -44,7 +44,7 @@ function DashboardHeader(props) {
               }}
             >
               {userData[0].FirstName ? (
-                `${userData[0].FirstName[0]}${userData[0].LastName[0]}`
+                `${userData[0].FirstName[0].toUpperCase()}${userData[0].LastName[0].toUpperCase()}`
               ) : (
                 <AccountCircle sx={{ fontSize: 36 }} />
               )}
@@ -55,14 +55,14 @@ function DashboardHeader(props) {
             spacing={1}
             sx={{ flex: 1, marginLeft: 2 }}
           >
-            <Typography variant="h5" fontWeight={600}>
+            <Typography variant="h5" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
               {userData[0].FirstName ? (
                 `${userData[0].FirstName} ${userData[0].LastName}`
               ) : (
                 "No Profile"
               )}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#00695c" }}>
+            <Typography variant="body2" sx={{ color: "#00695c", textTransform: 'capitalize' }}>
               {userData[0].PositionHeld != null
                 ? userData[0].PositionHeld
                 : "Waiting for activation"}
@@ -101,7 +101,7 @@ function DashboardHeader(props) {
             <Skeleton animation="wave" variant="text" />
           </Stack>
         </Box>
-      )}	
+      )}  
     </>
   );
 }
