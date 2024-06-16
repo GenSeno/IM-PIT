@@ -12,6 +12,8 @@ import {
   RadioGroup,
   Radio,
   FormLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
@@ -34,6 +36,7 @@ function SignupPage() {
     address: "",
     dateOfBirth: dayjs(),
     sex: "",
+    userType: "",
     terms: false,
     position: "",
     organizationName: "",
@@ -54,12 +57,18 @@ function SignupPage() {
     }));
   };
 
+  const handleUserTypeChange = (event) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      userType: event.target.value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsError(false);
 
     try {
-      // Sign up on Supabase (RETURNS -> AUTH)
       const { data: signUpData, error: signUpError } =
         await serveSupabaseClient.auth.signUp({
           email: formData.email,
@@ -72,10 +81,8 @@ function SignupPage() {
         return;
       }
 
-      // Fetch user's auth data on Supabase (GET -> AUTH)
       const { user } = signUpData;
 
-      // Insert & fetch data in Userlogin TABLE on Supabase (POST+GET -> Userlogin)
       const { data: insertUserLoginData, error: insertUserLoginError } =
         await serveSupabaseClient.from("Userlogin").insert([
           {
@@ -100,72 +107,70 @@ function SignupPage() {
 
       const userlogin_id = userData.id;
 
-      // Insert & fetch data in Work Experience table on Supabase (POST+GET -> WorkExperience)
-      const {
-        data: insertWorkExperienceData,
-        error: insertWorkExperienceError,
-      } = await serveSupabaseClient
-        .from("WorkExperience")
-        .insert([
-          {
-            StartDate: formData.workExperienceStartDate,
-            EndDate: formData.workExperienceEndDate,
-            Position: formData.workExperiencePosition,
-            OrganizationName: formData.workExperienceOrganization,
-          },
-        ])
-        .select("ExperienceID");
+      if (formData.userType === "staff") {
+        const {
+          data: insertWorkExperienceData,
+          error: insertWorkExperienceError,
+        } = await serveSupabaseClient
+          .from("WorkExperience")
+          .insert([
+            {
+              StartDate: formData.workExperienceStartDate,
+              EndDate: formData.workExperienceEndDate,
+              Position: formData.workExperiencePosition,
+              OrganizationName: formData.workExperienceOrganization,
+            },
+          ])
+          .select("ExperienceID");
 
-      if (insertWorkExperienceError) {
-        setIsError(true);
-        setErrorMessage(insertWorkExperienceError.message);
-        return;
+        if (insertWorkExperienceError) {
+          setIsError(true);
+          setErrorMessage(insertWorkExperienceError.message);
+          return;
+        }
+
+        const {
+          data: insertQualificationData,
+          error: insertQualificationError,
+        } = await serveSupabaseClient
+          .from("Qualification")
+          .insert([
+            {
+              QualificationDate: formData.qualificationDate,
+              QualificationType: formData.qualificationType,
+              InstitutionName: formData.qualificationInstitution,
+            },
+          ])
+          .select("QualificationID");
+
+        if (insertQualificationError) {
+          setIsError(true);
+          setErrorMessage(insertQualificationError.message);
+          return;
+        }
+
+        const { data: insertStaffData, error: insertStaffError } =
+          await serveSupabaseClient.from("Staff").insert([
+            {
+              FirstName: formData.firstName,
+              LastName: formData.lastName,
+              FullAddress: formData.address,
+              TelephoneNumber: formData.phoneNumber,
+              DateOfBirth: formData.dateOfBirth,
+              Sex: formData.sex,
+              userlogin_id: userlogin_id,
+              ExperienceID: insertWorkExperienceData[0].ExperienceID,
+              QualificationID: insertQualificationData[0].QualificationID,
+            },
+          ]);
+
+        if (insertStaffError) {
+          setIsError(true);
+          setErrorMessage(insertStaffError.message);
+          return;
+        }
       }
 
-      // Insert data in Qualification table on Supabase (POST -> Qualification)
-      const {
-        data: insertQualificationData,
-        error: insertQualificationError,
-      } = await serveSupabaseClient
-        .from("Qualification")
-        .insert([
-          {
-            QualificationDate: formData.qualificationDate,
-            QualificationType: formData.qualificationType,
-            InstitutionName: formData.qualificationInstitution,
-          },
-        ])
-        .select("QualificationID");
-
-      if (insertQualificationError) {
-        setIsError(true);
-        setErrorMessage(insertQualificationError.message);
-        return;
-      }
-
-      // Insert data in Staff table on Supabase (POST -> Staff)
-      const { data: insertStaffData, error: insertStaffError } =
-        await serveSupabaseClient.from("Staff").insert([
-          {
-            FirstName: formData.firstName,
-            LastName: formData.lastName,
-            FullAddress: formData.address,
-            TelephoneNumber: formData.phoneNumber,
-            DateOfBirth: formData.dateOfBirth,
-            Sex: formData.sex,
-            userlogin_id: userlogin_id,
-            ExperienceID: insertWorkExperienceData[0].ExperienceID,
-            QualificationID: insertQualificationData[0].QualificationID,
-          },
-        ]);
-
-      if (insertStaffError) {
-        setIsError(true);
-        setErrorMessage(insertStaffError.message);
-        return;
-      }
-
-      // Redirect to dashboard on successful signup
       navigate("/dashboard");
     } catch (error) {
       console.error("Error during signup and staff insertion:", error.message);
@@ -228,9 +233,9 @@ function SignupPage() {
           marginBottom: "20px"
         }}
       >
-        <Typography variant="h4" fontWeight="bold" textAlign="center" style={{ marginTop: '20px', color: "#00695c" }}>  
+        <Typography variant="h4" fontWeight="bold" textAlign="center" style={{ marginTop: '20px', color: "#00695c" }}>
           Sign Up
-        </Typography> 
+        </Typography>
 
         {/* Personal Information */}
         <Stack width="100%" spacing={2}>
@@ -325,64 +330,75 @@ function SignupPage() {
           </RadioGroup>
         </Stack>
 
-        {/* Work Experience */}
-        <Stack width="100%" spacing={2}>
-          <Typography variant="h5" fontWeight="bold" style= {{color: "#00695c" }}>
-            Work Experience
-          </Typography>
-          <DatePicker
-            label="Start Date"
-            value={formData.workExperienceStartDate}
-            onChange={(newValue) =>
-              setFormData((prev) => ({
-                ...prev,
-                workExperienceStartDate: newValue,
-              }))
-            }
-            disableFuture
-            fullWidth
-            inputVariant="outlined"
-          />
-          <DatePicker
-            label="End Date"
-            value={formData.workExperienceEndDate}
-            onChange={(newValue) =>
-              setFormData((prev) => ({
-                ...prev,
-                workExperienceEndDate: newValue,
-              }))
-            }
-            disableFuture
-            fullWidth
-            inputVariant="outlined"
-          />
-          <TextField
-            label="Position"
-            variant="outlined"
-            fullWidth
-            name="workExperiencePosition"
-            value={formData.workExperiencePosition}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            label="Organization Name"
-            variant="outlined"
-            fullWidth
-            name="workExperienceOrganization"
-            value={formData.workExperienceOrganization}
-            onChange={handleChange}
-            required
+        <FormLabel component="legend">Select Type of User</FormLabel>
+        <RadioGroup
+          aria-label="userType"
+          name="userType"
+          value={formData.userType}
+          onChange={handleUserTypeChange}
+          row
+        >
+          <FormControlLabel value="patient" control={<Radio />} label="Patient" />
+          <FormControlLabel value="staff" control={<Radio />} label="Staff" />
+        </RadioGroup>
+
+        {formData.userType === "staff" && (
+          <>
+            {/* Work Experience */}
+            <Typography variant="h6" fontWeight="bold">
+              Work Experience
+            </Typography>
+            <DatePicker
+              label="Start Date"
+              value={formData.workExperienceStartDate}
+              onChange={(newValue) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  workExperienceStartDate: newValue,
+                }))
+              }
+              disableFuture
+              fullWidth
+              inputVariant="outlined"
             />
-          </Stack>
-  
-          {/* Qualification Details */}
-          <Stack width="100%" spacing={2}>
-          <Typography variant="h5" fontWeight="bold" style= {{color: "#00695c" }}>
+            <DatePicker
+              label="End Date"
+              value={formData.workExperienceEndDate}
+              onChange={(newValue) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  workExperienceEndDate: newValue,
+                }))
+              }
+              disableFuture
+              fullWidth
+              inputVariant="outlined"
+            />
+            <TextField
+              label="Position"
+              variant="outlined"
+              fullWidth
+              name="workExperiencePosition"
+              value={formData.workExperiencePosition}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              label="Organization Name"
+              variant="outlined"
+              fullWidth
+              name="workExperienceOrganization"
+              value={formData.workExperienceOrganization}
+              onChange={handleChange}
+              required
+            />
+
+            {/* Qualification */}
+            <Typography variant="h6" fontWeight="bold">
               Qualification
             </Typography>
             <DatePicker
-              label="Qualification Date"
+              label="Date"
               value={formData.qualificationDate}
               onChange={(newValue) =>
                 setFormData((prev) => ({
@@ -395,7 +411,7 @@ function SignupPage() {
               inputVariant="outlined"
             />
             <TextField
-              label="Qualification Type"
+              label="Type"
               variant="outlined"
               fullWidth
               name="qualificationType"
@@ -412,50 +428,47 @@ function SignupPage() {
               onChange={handleChange}
               required
             />
-          </Stack>
+          </>
+        )}
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="terms"
-                checked={formData.terms}
-                onChange={handleChange}
-                color="primary"
-              />
-            }
-            label="I have agreed to the terms and conditions."
-          />
-          
-          {/* Submit Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<KeyRounded />}
-            type="submit"
-            fullWidth
-            size="large"
-          >
-            Sign Up
-          </Button>
-  
-          {/* Error Message */}
-          {isError && (
-            <Alert severity="error" fullWidth>
-              {errorMessage}
-            </Alert>
-          )}
-          
-          {/* Link to Login */}
-          <Typography variant="body2" textAlign="center">
-            Already have an account?{" "}
-            <Link href="/" underline="hover">
-              Log In
-            </Link>
-          </Typography>
-        </Stack>
-      </Container>
-    );
-  }
-  
-  export default SignupPage;
-  
+        {/* Terms and Submit */}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={formData.terms}
+              onChange={handleChange}
+              name="terms"
+            />
+          }
+          label="I accept the Terms and Conditions"
+        />
+
+        {isError && (
+          <Alert severity="error" style={{ marginBottom: "10px" }}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          size="large"
+          sx={{ mt: 2, mb: 2 }}
+        >
+          Sign Up
+        </Button>
+
+        <Typography variant="body2" align="center">
+          Already have an account?{" "}
+          <Link href="/login" color="secondary">
+            Log In
+          </Link>
+        </Typography>
+      </Stack>
+    </Container>
+  );
+}
+
+export default SignupPage;
+
