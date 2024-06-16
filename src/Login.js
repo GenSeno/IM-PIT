@@ -150,7 +150,6 @@ function LoginPage() {
         backgroundRepeat: "no-repeat, repeat",
       }}
     >
-    <Typography variant="body1">EYYYYYYYYYYYY NAAY CHANGES WHAT THE FUCK NAAY BAGO SA CHANGES SA FILES OH NO</Typography>
       {hasCurrentSession == null ? (
         <CircularProgress size={128} />
       ) : (
