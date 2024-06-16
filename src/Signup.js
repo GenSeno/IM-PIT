@@ -168,19 +168,38 @@ function SignupPage() {
         navigate("/staff_dashboard");
       } else {
         const { data: insertPatientData, error: insertPatientError } =
-          await serveSupabaseClient.from("Patient").insert([
-            {
-              FirstName: formData.firstName,
-              LastName: formData.lastName,
-              FullAddress: formData.address,
-              TelephoneNumber: formData.phoneNumber,
-              DateOfBirth: formData.dateOfBirth,
-              Sex: formData.sex,
-              PatientType: formData.patientType,
-              RegistrationDate: dayjs(),
-              Userlogin_ID: userlogin_id,
-            },
-          ]);
+          await serveSupabaseClient
+            .from("Patient")
+            .insert([
+              {
+                FirstName: formData.firstName,
+                LastName: formData.lastName,
+                FullAddress: formData.address,
+                TelephoneNumber: formData.phoneNumber,
+                DateOfBirth: formData.dateOfBirth,
+                Sex: formData.sex,
+                PatientType: formData.patientType,
+                RegistrationDate: dayjs(),
+                Userlogin_ID: userlogin_id,
+              },
+            ])
+            .select("PatientID");
+
+        if (formData.patientType == "inpatient") {
+          const { data: insertInpatientData, error: insertInpatientError } =
+            await serveSupabaseClient.from("InPatient").insert([
+              {
+                PatientID: insertPatientData[0].PatientID,
+              },
+            ]);
+        } else {
+          const { data: insertOutpatientData, error: insertOutpatientError } =
+            await serveSupabaseClient.from("OutPatient").insert([
+              {
+                PatientID: insertPatientData[0].PatientID,
+              },
+            ]);
+        }
 
         if (insertPatientError) {
           setIsError(true);
