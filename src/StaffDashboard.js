@@ -16,7 +16,7 @@ import serveSupabaseClient from "./client/client";
 import { ArrowDownwardRounded } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import TabPanel from "./components/tab_panel";
-import DashboardHeader from "./components/dashboard_header";
+import StaffDashboardHeader from "./components/staff_dashboard_header";
 import {
   useFetchPatients,
   useFetchStaffs,
@@ -31,8 +31,7 @@ import {
   StaffsWithPositionsComponent,
 } from "./components/staff_component";
 
-
-function DashboardPage() {
+function StaffDashboardPage() {
   const navigate = useNavigate();
 
   const userData = useFetchUserData();
@@ -111,7 +110,7 @@ function DashboardPage() {
 
   return (
     <Container fixed>
-      <DashboardHeader userData={userData} />
+      <StaffDashboardHeader userData={userData} />
 
       {userData != null ? (
         userData[0].PositionHeld != null ? (
@@ -154,13 +153,12 @@ function DashboardPage() {
             <TabPanel value={tabValue} index={2}>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Typography sx={{ textTransform: 'capitalize' }}>
+                  <Typography sx={{ textTransform: "capitalize" }}>
                     <StaffsWithPositionsComponent staffs={staffs} />
                   </Typography>
-
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography sx={{ textTransform: 'capitalize' }}>
+                  <Typography sx={{ textTransform: "capitalize" }}>
                     <StaffsWithNoPositionsComponent staffs={staffs} />
                   </Typography>
                 </Grid>
@@ -214,7 +212,8 @@ function DashboardPage() {
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}>
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <b> Sex:</b> {e.Sex}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
@@ -251,4 +250,4 @@ function DashboardPage() {
   );
 }
 
-export default DashboardPage;
+export default StaffDashboardPage;

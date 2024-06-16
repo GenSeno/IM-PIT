@@ -1,5 +1,6 @@
 import serveSupabaseClient from "./client";
 import { useState, useEffect } from "react";
+
 export const useFetchUserData = () => {
   const [userData, setUserData] = useState(null);
 
@@ -151,4 +152,56 @@ export const useFetchPatients = () => {
   }, []);
 
   return patients;
+};
+
+export const useFetchPatientData = () => {
+  const [patientData, setPatientData] = useState(null);
+
+  const fetchPatientData = async () => {
+    const { data: user, error: userError } =
+      await serveSupabaseClient.auth.getUser();
+
+    if (userError) {
+      console.error("Error fetching user:", userError);
+      return;
+    }
+
+    try {
+      if (user) {
+        const { data: userProfile, error: userProfileError } =
+          await serveSupabaseClient
+            .from("Userlogin")
+            .select("id")
+            .eq("email", user.user.email)
+            .single();
+
+        if (userProfileError) {
+          console.error("Error fetching user profile:", userProfileError);
+          return;
+        }
+
+        const { data: fetchedPatientData, error: patientDataError } =
+          await serveSupabaseClient
+            .from("Patient")
+            .select("*")
+            .eq("Userlogin_ID", userProfile.id)
+            .single(); // Assuming you expect only one patient data object
+
+        if (patientDataError) {
+          console.error("Error fetching patient data:", patientDataError);
+          return;
+        }
+
+        setPatientData(fetchedPatientData);
+      }
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatientData();
+  }, []);
+
+  return patientData;
 };

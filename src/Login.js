@@ -23,32 +23,66 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { data, error } = await serveSupabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error: authSignInError } =
+      await serveSupabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
+    const { data: user, error: userError } =
+      await serveSupabaseClient.auth.getUser();
+
+    if (authSignInError) {
       setIsError(true);
-      setErrorMessage(error.message);
+      setErrorMessage(authSignInError.message);
     } else {
-      navigate("/dashboard");
+      if (user) {
+        const { data: userProfile, error: userProfileError } =
+          await serveSupabaseClient
+            .from("Userlogin")
+            .select("id")
+            .eq("email", user.user.email)
+            .single();
+
+        const { data: staffProfile, error: staffProfileError } =
+          await serveSupabaseClient
+            .from("Staff")
+            .select("Userlogin (id), userlogin_id")
+            .eq("userlogin_id", userProfile.id);
+
+        const { data: patientProfile, error: patientProfileError } =
+          await serveSupabaseClient
+            .from("Patient")
+            .select(
+              "FirstName, LastName, FullAddress, TelephoneNumber, Userlogin (id), Userlogin_ID"
+            )
+            .eq("Userlogin_ID", userProfile.id);
+
+        if (staffProfileError) {
+          console.error("Error fetching patient profile:", staffProfileError);
+        } else {
+          console.log(staffProfile);
+          navigate("/staff_dashboard");
+        }
+
+        if (patientProfileError) {
+          console.error("Error fetching patient profile:", patientProfileError);
+        } else {
+          console.log(patientProfile);
+          navigate("/patient_dashboard");
+        }
+      }
     }
   };
 
   const handleRedirection = async () => {
     const {
       data: { session: currentSession },
-      error,
+      error: sessionError,
     } = await serveSupabaseClient.auth.getSession();
 
-    if (error) {
-      console.error("Error fetching session:", error.message);
-      return;
-    }
-
     if (currentSession) {
-      navigate("/dashboard/");
+      console.log(currentSession);
     } else {
       console.log("No session found.");
     }
@@ -78,7 +112,7 @@ function LoginPage() {
         style={{
           padding: "2rem",
           borderRadius: "1rem",
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
           maxWidth: "400px",
           width: "100%",
         }}

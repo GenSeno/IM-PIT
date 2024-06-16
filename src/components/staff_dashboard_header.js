@@ -1,9 +1,16 @@
 import { ArrowBack, AccountCircle } from "@mui/icons-material";
-import { Stack, Typography, Button, Skeleton, Box, Avatar } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  Button,
+  Skeleton,
+  Box,
+  Avatar,
+} from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import serveSupabaseClient from "../client/client";
 
-function DashboardHeader(props) {
+function StaffDashboardHeader(props) {
   const { userData } = props;
   const navigate = useNavigate();
 
@@ -33,14 +40,17 @@ function DashboardHeader(props) {
             padding: "20px",
           }}
         >
-          <Link to={`/user/${userData[0].id}`} style={{ textDecoration: 'none' }}>
+          <Link
+            to={`/user/${userData[0].id}`}
+            style={{ textDecoration: "none" }}
+          >
             <Avatar
               sx={{
                 width: 48,
                 height: 48,
                 marginRight: 2,
                 backgroundColor: userData[0].FirstName ? "#a7bed3" : "#bdbdbd",
-                cursor: 'pointer'
+                cursor: "pointer",
               }}
             >
               {userData[0].FirstName ? (
@@ -50,19 +60,20 @@ function DashboardHeader(props) {
               )}
             </Avatar>
           </Link>
-          <Stack
-            direction="column"
-            spacing={1}
-            sx={{ flex: 1, marginLeft: 2 }}
-          >
-            <Typography variant="h5" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
-              {userData[0].FirstName ? (
-                `${userData[0].FirstName} ${userData[0].LastName}`
-              ) : (
-                "No Profile"
-              )}
+          <Stack direction="column" spacing={1} sx={{ flex: 1, marginLeft: 2 }}>
+            <Typography
+              variant="h5"
+              fontWeight={600}
+              sx={{ textTransform: "capitalize" }}
+            >
+              {userData[0].FirstName
+                ? `${userData[0].FirstName} ${userData[0].LastName}`
+                : "No Profile"}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#00695c", textTransform: 'capitalize' }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#00695c", textTransform: "capitalize" }}
+            >
               {userData[0].PositionHeld != null
                 ? userData[0].PositionHeld
                 : "Waiting for activation"}
@@ -101,9 +112,9 @@ function DashboardHeader(props) {
             <Skeleton animation="wave" variant="text" />
           </Stack>
         </Box>
-      )}  
+      )}
     </>
   );
 }
 
-export default DashboardHeader;
+export default StaffDashboardHeader;

@@ -11,10 +11,11 @@ import "@fontsource/roboto/700.css";
 import LoginPage from "./Login";
 import SignupPage from "./Signup";
 import { createTheme, ThemeProvider } from "@mui/material";
-import DashboardPage from "./Dashboard";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import StaffDashboardPage from "./StaffDashboard";
+import PatientDashboardPage from "./PatientDashboard";
 
 const router = createBrowserRouter([
   {
@@ -26,8 +27,12 @@ const router = createBrowserRouter([
     element: <SignupPage />,
   },
   {
-    path: "/dashboard",
-    element: <DashboardPage />,
+    path: "/staff_dashboard",
+    element: <StaffDashboardPage />,
+  },
+  {
+    path: "/patient_dashboard",
+    element: <PatientDashboardPage />,
   },
 ]);
 

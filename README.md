@@ -10,7 +10,5 @@ You can change the themes by providing your own palettes in the ./src/index.js
 * Open the ./src/index.js file and change the palettes in the themeOptions variable.
 * [Theme Creator](https://zenoo.github.io/mui-theme-creator/)
 ## What to install
+Simply type "npm install" in your terminal and it'll automatically fetch modules/packages in the packages.json and it will automatically install anything.
 * npm install
-* npm install @mui/material @emotion/react @emotion/styled
-* npm install @supabase/supabase-js
-* npm install react-router-dom

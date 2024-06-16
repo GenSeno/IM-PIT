@@ -37,6 +37,7 @@ function SignupPage() {
     dateOfBirth: dayjs(),
     sex: "",
     userType: "",
+    patientType: "",
     terms: false,
     position: "",
     organizationName: "",
@@ -55,13 +56,7 @@ function SignupPage() {
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
-
-  const handleUserTypeChange = (event) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      userType: event.target.value,
-    }));
+    console.log(value);
   };
 
   const handleSubmit = async (e) => {
@@ -107,7 +102,7 @@ function SignupPage() {
 
       const userlogin_id = userData.id;
 
-      if (formData.userType === "staff") {
+      if (formData.userType == "staff") {
         const {
           data: insertWorkExperienceData,
           error: insertWorkExperienceError,
@@ -169,9 +164,32 @@ function SignupPage() {
           setErrorMessage(insertStaffError.message);
           return;
         }
-      }
 
-      navigate("/dashboard");
+        navigate("/staff_dashboard");
+      } else {
+        const { data: insertPatientData, error: insertPatientError } =
+          await serveSupabaseClient.from("Patient").insert([
+            {
+              FirstName: formData.firstName,
+              LastName: formData.lastName,
+              FullAddress: formData.address,
+              TelephoneNumber: formData.phoneNumber,
+              DateOfBirth: formData.dateOfBirth,
+              Sex: formData.sex,
+              PatientType: formData.patientType,
+              RegistrationDate: dayjs(),
+              Userlogin_ID: userlogin_id,
+            },
+          ]);
+
+        if (insertPatientError) {
+          setIsError(true);
+          setErrorMessage(insertPatientError.message);
+          return;
+        }
+
+        navigate("/patient_dashboard");
+      }
     } catch (error) {
       console.error("Error during signup and staff insertion:", error.message);
       setIsError(true);
@@ -230,10 +248,15 @@ function SignupPage() {
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
           marginTop: "20px",
-          marginBottom: "20px"
+          marginBottom: "20px",
         }}
       >
-        <Typography variant="h4" fontWeight="bold" textAlign="center" style={{ marginTop: '20px', color: "#00695c" }}>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          textAlign="center"
+          style={{ marginTop: "20px", color: "#00695c" }}
+        >
           Sign Up
         </Typography>
 
@@ -312,35 +335,53 @@ function SignupPage() {
             onChange={handleChange}
             row
           >
-            <FormControlLabel
-              value="male"
-              control={<Radio />}
-              label="Male"
-            />
+            <FormControlLabel value="male" control={<Radio />} label="Male" />
             <FormControlLabel
               value="female"
               control={<Radio />}
               label="Female"
             />
-            <FormControlLabel
-              value="other"
-              control={<Radio />}
-              label="Other"
-            />
+            <FormControlLabel value="other" control={<Radio />} label="Other" />
           </RadioGroup>
         </Stack>
 
         <FormLabel component="legend">Select Type of User</FormLabel>
         <RadioGroup
-          aria-label="userType"
           name="userType"
           value={formData.userType}
-          onChange={handleUserTypeChange}
+          onChange={handleChange}
           row
         >
-          <FormControlLabel value="patient" control={<Radio />} label="Patient" />
+          <FormControlLabel
+            value="patient"
+            control={<Radio />}
+            label="Patient"
+          />
           <FormControlLabel value="staff" control={<Radio />} label="Staff" />
         </RadioGroup>
+
+        {formData.userType === "patient" && (
+          <>
+            <FormLabel component="legend">Select Type of Patient</FormLabel>
+            <RadioGroup
+              name="patientType"
+              value={formData.patientType}
+              onChange={handleChange}
+              row
+            >
+              <FormControlLabel
+                value="inpatient"
+                control={<Radio />}
+                label="Inpatient"
+              />
+              <FormControlLabel
+                value="outpatient"
+                control={<Radio />}
+                label="Outpatient"
+              />
+            </RadioGroup>
+          </>
+        )}
 
         {formData.userType === "staff" && (
           <>
@@ -471,4 +512,3 @@ function SignupPage() {
 }
 
 export default SignupPage;
-
