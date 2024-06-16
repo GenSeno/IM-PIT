@@ -14,6 +14,14 @@ import { useEffect, useState } from "react";
 import serveSupabaseClient from "./client/client";
 import { useNavigate } from "react-router-dom";
 
+function LoginNIGGERTEST() {
+  const yey = "what"
+}
+
+function LoginNIGGERTESX() {
+  const yey = "what"
+}
+
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
