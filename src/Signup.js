@@ -69,16 +69,13 @@ function SignupPage() {
       if (signUpError) {
         setIsError(true);
         setErrorMessage(signUpError.message);
-        console.log(signUpError.message);
         return;
       }
-      // Sign up on Supabase (RETURNS -> AUTH)
 
       // Fetch user's auth data on Supabase (GET -> AUTH)
       const { user } = signUpData;
-      // Fetch user's auth data on Supabase (GET -> AUTH)
 
-      // Insert & fetches data in Userlogin TABLE on Supabase (POST+GET -> Userlogin)
+      // Insert & fetch data in Userlogin TABLE on Supabase (POST+GET -> Userlogin)
       const { data: insertUserLoginData, error: insertUserLoginError } =
         await serveSupabaseClient.from("Userlogin").insert([
           {
@@ -102,10 +99,8 @@ function SignupPage() {
         .single();
 
       const userlogin_id = userData.id;
-      console.log(userData);
-      // Insert & fetches data in Userlogin TABLE on Supabase (POST+GET -> Userlogin)
 
-      // Insert & fetches data in Work Experience table on Supabase (POST+GET -> WorkExperience)
+      // Insert & fetch data in Work Experience table on Supabase (POST+GET -> WorkExperience)
       const {
         data: insertWorkExperienceData,
         error: insertWorkExperienceError,
@@ -124,28 +119,27 @@ function SignupPage() {
       if (insertWorkExperienceError) {
         setIsError(true);
         setErrorMessage(insertWorkExperienceError.message);
-        console.log(insertWorkExperienceError.message);
         return;
       }
 
-      // Insert & fetches data in Work Experience table on Supabase (POST+GET -> WorkExperience)
-
-      const { data: insertQualificationData, error: insertQualificationError } =
-        await serveSupabaseClient
-          .from("Qualification")
-          .insert([
-            {
-              QualificationDate: formData.qualificationDate,
-              QualificationType: formData.qualificationType,
-              InstitutionName: formData.qualificationInstitution,
-            },
-          ])
-          .select("QualificationID");
+      // Insert data in Qualification table on Supabase (POST -> Qualification)
+      const {
+        data: insertQualificationData,
+        error: insertQualificationError,
+      } = await serveSupabaseClient
+        .from("Qualification")
+        .insert([
+          {
+            QualificationDate: formData.qualificationDate,
+            QualificationType: formData.qualificationType,
+            InstitutionName: formData.qualificationInstitution,
+          },
+        ])
+        .select("QualificationID");
 
       if (insertQualificationError) {
         setIsError(true);
         setErrorMessage(insertQualificationError.message);
-        console.log(insertQualificationError.message);
         return;
       }
 
@@ -168,12 +162,11 @@ function SignupPage() {
       if (insertStaffError) {
         setIsError(true);
         setErrorMessage(insertStaffError.message);
-        console.log(insertStaffError.message);
         return;
       }
-      // Insert data in Staff table on Supabase (POST -> Staff)
 
-      navigate("/");
+      // Redirect to dashboard on successful signup
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error during signup and staff insertion:", error.message);
       setIsError(true);
@@ -193,7 +186,7 @@ function SignupPage() {
     }
 
     if (currentSession) {
-      navigate("/dashboard/");
+      navigate("/dashboard");
     } else {
       console.log("No session found.");
     }
@@ -205,238 +198,264 @@ function SignupPage() {
 
   return (
     <Container
+      disableGutters
+      maxWidth={false}
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
+        backgroundSize: "cover, 100px 100px",
+        backgroundRepeat: "no-repeat, repeat",
       }}
-      fixed
     >
-      <Stack direction="column" gap={1}>
-        <Stack
-          direction="row"
-          gap={2}
-          component="form"
-          onSubmit={handleSubmit}
-          justifyItems="center"
-        >
-          {/* STAFF DETAILS CONTAINER  */}
-          <Stack direction="column" gap={1}>
-            <Typography variant="h5" fontWeight={700}>
-              Staff Details
+      <Stack
+        component="form"
+        spacing={4}
+        onSubmit={handleSubmit}
+        width="100%"
+        alignItems="stretch"
+        sx={{
+          maxWidth: "600px",
+          px: 10,
+          py: 4,
+          borderRadius: 10,
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          marginTop: "20px",
+          marginBottom: "20px"
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold" textAlign="center" style={{ marginTop: '20px', color: "#00695c" }}>  
+          Sign Up
+        </Typography> 
+
+        {/* Personal Information */}
+        <Stack width="100%" spacing={2}>
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Password"
+            variant="outlined"
+            fullWidth
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="First Name"
+            variant="outlined"
+            fullWidth
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Last Name"
+            variant="outlined"
+            fullWidth
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Address"
+            variant="outlined"
+            fullWidth
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+          <DatePicker
+            label="Date of Birth"
+            value={formData.dateOfBirth}
+            onChange={(newValue) =>
+              setFormData((prev) => ({ ...prev, dateOfBirth: newValue }))
+            }
+            disableFuture
+            fullWidth
+            inputVariant="outlined"
+          />
+          <TextField
+            label="Phone Number"
+            variant="outlined"
+            fullWidth
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            required
+          />
+          <FormLabel component="legend">Gender</FormLabel>
+          <RadioGroup
+            aria-label="gender"
+            name="sex"
+            value={formData.sex}
+            onChange={handleChange}
+            row
+          >
+            <FormControlLabel
+              value="male"
+              control={<Radio />}
+              label="Male"
+            />
+            <FormControlLabel
+              value="female"
+              control={<Radio />}
+              label="Female"
+            />
+            <FormControlLabel
+              value="other"
+              control={<Radio />}
+              label="Other"
+            />
+          </RadioGroup>
+        </Stack>
+
+        {/* Work Experience */}
+        <Stack width="100%" spacing={2}>
+          <Typography variant="h5" fontWeight="bold" style= {{color: "#00695c" }}>
+            Work Experience
+          </Typography>
+          <DatePicker
+            label="Start Date"
+            value={formData.workExperienceStartDate}
+            onChange={(newValue) =>
+              setFormData((prev) => ({
+                ...prev,
+                workExperienceStartDate: newValue,
+              }))
+            }
+            disableFuture
+            fullWidth
+            inputVariant="outlined"
+          />
+          <DatePicker
+            label="End Date"
+            value={formData.workExperienceEndDate}
+            onChange={(newValue) =>
+              setFormData((prev) => ({
+                ...prev,
+                workExperienceEndDate: newValue,
+              }))
+            }
+            disableFuture
+            fullWidth
+            inputVariant="outlined"
+          />
+          <TextField
+            label="Position"
+            variant="outlined"
+            fullWidth
+            name="workExperiencePosition"
+            value={formData.workExperiencePosition}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Organization Name"
+            variant="outlined"
+            fullWidth
+            name="workExperienceOrganization"
+            value={formData.workExperienceOrganization}
+            onChange={handleChange}
+            required
+            />
+          </Stack>
+  
+          {/* Qualification Details */}
+          <Stack width="100%" spacing={2}>
+          <Typography variant="h5" fontWeight="bold" style= {{color: "#00695c" }}>
+              Qualification
             </Typography>
-            <Stack direction="row" gap={1}>
-              <TextField
-                label="Email"
-                variant="outlined"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                label="Password"
-                variant="outlined"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </Stack>
-            <Stack direction="row" gap={1}>
-              <TextField
-                label="First Name"
-                variant="outlined"
-                value={formData.firstName}
-                name="firstName"
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                label="Last Name"
-                variant="outlined"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </Stack>
-            <Stack direction="row" gap={1}>
-              <TextField
-                label="Address"
-                variant="outlined"
-                value={formData.address}
-                name="address"
-                onChange={handleChange}
-                required
-              />
-              <DatePicker
-                defaultValue={dayjs()}
-                value={formData.dateOfBirth}
-                onChange={(newValue) => {
-                  setFormData((prev) => ({ ...prev, dateOfBirth: newValue }));
-                }}
-                label="Date of birth"
-                disableFuture
-              />
-            </Stack>
+            <DatePicker
+              label="Qualification Date"
+              value={formData.qualificationDate}
+              onChange={(newValue) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  qualificationDate: newValue,
+                }))
+              }
+              disableFuture
+              fullWidth
+              inputVariant="outlined"
+            />
             <TextField
-              label="Phone Number"
+              label="Qualification Type"
               variant="outlined"
-              name="phoneNumber"
-              value={formData.phoneNumber}
+              fullWidth
+              name="qualificationType"
+              value={formData.qualificationType}
               onChange={handleChange}
               required
             />
-            <FormLabel>Gender</FormLabel>
-            <Stack direction="row" gap={1}>
-              <RadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="male"
-                name="sex"
-                style={{ display: "flex", flexDirection: "row" }}
-                onChange={handleChange}
-                value={formData.sex}
-              >
-                <FormControlLabel
-                  value="male"
-                  control={<Radio />}
-                  label="Male"
-                />
-                <FormControlLabel
-                  value="female"
-                  control={<Radio />}
-                  label="Female"
-                />
-                <FormControlLabel
-                  value="other"
-                  control={<Radio />}
-                  label="Other"
-                />
-              </RadioGroup>
-            </Stack>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="terms"
-                  checked={formData.terms}
-                  onChange={handleChange}
-                  sx={{ color: "rgba(0, 0, 0, 0.5)" }}
-                />
-              }
-              label="I have agreed to the terms and conditions."
+            <TextField
+              label="Institution Name"
+              variant="outlined"
+              fullWidth
+              name="qualificationInstitution"
+              value={formData.qualificationInstitution}
+              onChange={handleChange}
               required
             />
-            <Button variant="outlined" startIcon={<KeyRounded />} type="submit">
-              Sign-up
-            </Button>
           </Stack>
-          {/* STAFF DETAILS CONTAINER  */}
 
-          {/* WORK EXPERIENCE DETAILS CONTAINER  */}
-          <Stack direction="column" gap={1}>
-            <Typography variant="h5" fontWeight={700}>
-              Work Experience Details
-            </Typography>
-            <Stack direction="column" gap={1}>
-              <Stack direction="row" gap={1}>
-                <DatePicker
-                  defaultValue={dayjs()}
-                  value={formData.workExperienceStartDate}
-                  onChange={(newValue) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      workExperienceStartDate: newValue,
-                    }));
-                  }}
-                  label="Starting date"
-                  disableFuture
-                />
-
-                <DatePicker
-                  defaultValue={dayjs()}
-                  value={formData.workExperienceEndDate}
-                  onChange={(newValue) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      workExperienceEndDate: newValue,
-                    }));
-                  }}
-                  label="End date"
-                  disableFuture
-                />
-              </Stack>
-              <Stack direction="row" gap={1}>
-                <TextField
-                  label="Position"
-                  variant="outlined"
-                  value={formData.workExperiencePosition}
-                  name="workExperiencePosition"
-                  onChange={handleChange}
-                  required
-                />
-                <TextField
-                  label="Organization Name"
-                  variant="outlined"
-                  value={formData.workExperienceOrganization}
-                  name="workExperienceOrganization"
-                  onChange={handleChange}
-                  required
-                />
-              </Stack>
-            </Stack>
-          </Stack>
-          {/* WORK EXPERIENCE DETAILS CONTAINER  */}
-
-          {/* QUALIFICATION DETAILS CONTAINER  */}
-          <Stack direction="column" gap={1}>
-            <Typography variant="h5" fontWeight={700}>
-              Qualification Details
-            </Typography>
-            <Stack direction="column" gap={1}>
-              <Stack direction="row" gap={1}>
-                <DatePicker
-                  defaultValue={dayjs()}
-                  value={formData.qualificationDate}
-                  onChange={(newValue) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      qualificationDate: newValue,
-                    }));
-                  }}
-                  label="Qualification date"
-                  disableFuture
-                />
-                <TextField
-                  label="Qualification Type"
-                  variant="outlined"
-                  value={formData.qualificationType}
-                  name="qualificationType"
-                  onChange={handleChange}
-                  required
-                />
-              </Stack>
-              <TextField
-                label="Institution Name"
-                variant="outlined"
-                value={formData.qualificationInstitution}
-                name="qualificationInstitution"
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="terms"
+                checked={formData.terms}
                 onChange={handleChange}
-                required
+                color="primary"
               />
-            </Stack>
-          </Stack>
-          {/* QUALIFICATION DETAILS CONTAINER  */}
+            }
+            label="I have agreed to the terms and conditions."
+          />
+          
+          {/* Submit Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<KeyRounded />}
+            type="submit"
+            fullWidth
+            size="large"
+          >
+            Sign Up
+          </Button>
+  
+          {/* Error Message */}
+          {isError && (
+            <Alert severity="error" fullWidth>
+              {errorMessage}
+            </Alert>
+          )}
+          
+          {/* Link to Login */}
+          <Typography variant="body2" textAlign="center">
+            Already have an account?{" "}
+            <Link href="/" underline="hover">
+              Log In
+            </Link>
+          </Typography>
         </Stack>
-
-        {isError && <Alert severity="warning">{errorMessage}</Alert>}
-        <Link href="/" underline="none">
-          Already have an account?
-        </Link>
-      </Stack>
-    </Container>
-  );
-}
-
-export default SignupPage;
+      </Container>
+    );
+  }
+  
+  export default SignupPage;
+  

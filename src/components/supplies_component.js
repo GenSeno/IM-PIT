@@ -8,26 +8,26 @@ import {
   Card,
   CardContent,
   Typography,
+  Box,
 } from "@mui/material";
 
 function SuppliesSelectComponent(props) {
+  const { value, onChange, data } = props;
+
   return (
-    <FormControl
-      direction="column"
-      flexWrap="wrap"
-      variant="outlined"
-      size="small"
-    >
+    <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
       <FormHelperText>Select a supply to display</FormHelperText>
-      <Select value={props.value} onChange={props.onChange}>
-        {props.data != null ? (
-          props.data.map((e) => (
+      <Select value={value} onChange={onChange} displayEmpty>
+        {data !== data.length ? (
+          data.map((e) => (
             <MenuItem key={e.ItemName} value={e.ItemName}>
               {e.ItemName}
             </MenuItem>
           ))
         ) : (
-          <Skeleton animation="wave" />
+          <MenuItem disabled>
+            <Skeleton animation="wave" width={100} />
+          </MenuItem>
         )}
       </Select>
     </FormControl>
@@ -42,38 +42,56 @@ function SuppliesComponent(props) {
     selectedSupplyData,
   } = props;
 
+  const displayData = selectedSupplyData && selectedSupplyData.length > 0 
+    ? selectedSupplyData[0] 
+    : { ItemDescription: "", Category: "", CostPerUnit: "", QuantityInStock: "", ReorderLevel: "" };
+
   return (
-    <Stack direction="row" gap={2}>
-      <SuppliesSelectComponent
-        helper_text="Select a supply to display"
-        value={selectedSupply}
-        onChange={handleSelectSupplyChange}
-        data={supplies}
-      />
-      {selectedSupplyData && selectedSupplyData.length > 0 ? (
-        <Card sx={{ p: 1, my: 2, ml: 2, width: "80%" }}>
-          <CardContent>
-            <Typography gutterBottom>
-              {selectedSupplyData[0].ItemDescription}
-            </Typography>
-            <Typography>
-              <b>Category</b>: {selectedSupplyData[0].Category}
-            </Typography>
-            <Typography>
-              <b>Cost per unit</b>: {selectedSupplyData[0].CostPerUnit}
-            </Typography>
-            <Typography>
-              <b>Quantity in stock</b>: {selectedSupplyData[0].QuantityInStock}
-            </Typography>
-            <Typography>
-              <b>Reorder level</b>: {selectedSupplyData[0].ReorderLevel}
-            </Typography>
-          </CardContent>
-        </Card>
-      ) : (
-        <Skeleton />
-      )}
-    </Stack>
+    <Box sx={{ padding: 2 }}>
+      <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap" }}>
+        <Box sx={{ minWidth: 200 }}>
+          <SuppliesSelectComponent
+            value={selectedSupply}
+            onChange={handleSelectSupplyChange}
+            data={supplies}
+          />
+        </Box>
+        <Box sx={{ flexGrow: 1, minWidth: 300 }}>
+          {selectedSupplyData && selectedSupplyData.length > 0 ? (
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                <Typography gutterBottom>
+                  {displayData.ItemDescription}
+                </Typography>
+                <Typography>
+                  <b>Category:</b> {displayData.Category}
+                </Typography>
+                <Typography>
+                  <b>Cost per unit:</b> {displayData.CostPerUnit}
+                </Typography>
+                <Typography>
+                  <b>Quantity in stock:</b> {displayData.QuantityInStock}
+                </Typography>
+                <Typography>
+                  <b>Reorder level:</b> {displayData.ReorderLevel}
+                </Typography>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                <Typography variant="h6" color="textSecondary" gutterBottom>
+                  No supply selected
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Please select a supply from the dropdown to view details.
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
+        </Box>
+      </Stack>
+    </Box>
   );
 }
 

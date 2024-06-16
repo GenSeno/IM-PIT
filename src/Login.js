@@ -7,16 +7,17 @@ import {
   Button,
   Link,
   Alert,
+  Paper,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import serveSupabaseClient from "./client/client";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -59,27 +60,52 @@ function LoginPage() {
 
   return (
     <Container
+      disableGutters
+      maxWidth={false}
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
+        backgroundSize: "cover, 100px 100px",
+        backgroundRepeat: "no-repeat, repeat",
       }}
-      fixed
     >
-      <Stack direction="column" gap={1}>
-        <Typography variant="h4" fontWeight="700" component="h4">
-          Wellmeadows Hospital
-        </Typography>
-        <Stack
-          direction="column"
-          gap={1}
-          component="form"
-          onSubmit={handleSubmit}
-        >
-          <Stack direction="row" gap={1}>
+      <Paper
+        elevation={3}
+        style={{
+          padding: "2rem",
+          borderRadius: "1rem",
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          maxWidth: "400px",
+          width: "100%",
+        }}
+      >
+        <Stack direction="column" gap={2} alignItems="center">
+          <Typography
+            variant="h4"
+            fontWeight="700"
+            component="h4"
+            style={{ color: "#00695c" }}
+          >
+            Wellmeadows Hospital
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary">
+            Sign in to your account
+          </Typography>
+          <Stack
+            direction="column"
+            gap={2}
+            component="form"
+            onSubmit={handleSubmit}
+            width="100%"
+          >
             <TextField
               label="Email"
               variant="outlined"
+              fullWidth
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -88,20 +114,32 @@ function LoginPage() {
               label="Password"
               variant="outlined"
               type="password"
+              fullWidth
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<KeyRounded />}
+              type="submit"
+              fullWidth
+              size="large"
+            >
+              Login
+            </Button>
           </Stack>
-          <Button variant="outlined" startIcon={<KeyRounded />} type="submit">
-            Login
-          </Button>
+          {isError && (
+            <Alert severity="error" style={{ width: "100%" }}>
+              {errorMessage}
+            </Alert>
+          )}
+          <Link href="/sign-up" underline="none">
+            Don't have an account? Sign up
+          </Link>
         </Stack>
-        {isError && <Alert severity="error">{errorMessage}</Alert>}
-        <Link href="/sign-up" underline="none">
-          Don't have an account?
-        </Link>
-      </Stack>
+      </Paper>
     </Container>
   );
 }

@@ -9,6 +9,7 @@ import {
   Tabs,
   Tab,
   Box,
+  Grid,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
@@ -29,6 +30,7 @@ import {
   StaffsWithNoPositionsComponent,
   StaffsWithPositionsComponent,
 } from "./components/staff_component";
+
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -150,8 +152,14 @@ function DashboardPage() {
 
             {/* STAFFS */}
             <TabPanel value={tabValue} index={2}>
-              <StaffsWithPositionsComponent staffs={staffs} />
-              <StaffsWithNoPositionsComponent staffs={staffs} />
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <StaffsWithPositionsComponent staffs={staffs} />
+                </Grid>
+                <Grid item xs={6}>
+                  <StaffsWithNoPositionsComponent staffs={staffs} />
+                </Grid>
+              </Grid>
             </TabPanel>
             {/* STAFFS */}
 
@@ -201,8 +209,7 @@ function DashboardPage() {
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
-                          >
+                            style={{ textTransform: "capitalize" }}>
                             <b> Sex:</b> {e.Sex}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
