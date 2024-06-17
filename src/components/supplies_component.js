@@ -42,8 +42,8 @@ function SuppliesComponent(props) {
     selectedSupplyData,
   } = props;
 
-  const displayData = selectedSupplyData && selectedSupplyData.length > 0 
-    ? selectedSupplyData[0] 
+  const displayData = selectedSupplyData && selectedSupplyData.length > 0
+    ? selectedSupplyData[0]
     : { ItemDescription: "", Category: "", CostPerUnit: "", QuantityInStock: "", ReorderLevel: "" };
 
   return (
@@ -94,5 +94,7 @@ function SuppliesComponent(props) {
     </Box>
   );
 }
+
+
 
 export default SuppliesComponent;

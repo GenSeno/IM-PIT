@@ -20,7 +20,7 @@ function LoginPage() {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [hasCurrentSession, setCurrentSessionState] = useState(null);
+  const [hasCurrentSession, setCurrentSessionState] = useState(false);
 
   const navigate = useNavigate();
 
@@ -41,6 +41,7 @@ function LoginPage() {
       setErrorMessage(authSignInError.message);
     } else {
       if (user) {
+
         const { data: userProfile, error: userProfileError } =
           await serveSupabaseClient
             .from("Userlogin")
@@ -54,27 +55,12 @@ function LoginPage() {
             .select("Userlogin (id), userlogin_id")
             .eq("userlogin_id", userProfile.id);
 
-        const { data: patientProfile, error: patientProfileError } =
-          await serveSupabaseClient
-            .from("Patient")
-            .select(
-              "FirstName, LastName, FullAddress, TelephoneNumber, Userlogin (id), Userlogin_ID"
-            )
-            .eq("Userlogin_ID", userProfile.id);
-
-        if (staffProfileError) {
-          console.error("Error fetching patient profile:", staffProfileError);
-        } else {
-          console.log(staffProfile);
+        if (staffProfile.length >= 1) {
           navigate("/staff_dashboard");
+        } else {
+          navigate("/patient_dashboard")
         }
 
-        if (patientProfileError) {
-          console.error("Error fetching patient profile:", patientProfileError);
-        } else {
-          console.log(patientProfile);
-          navigate("/patient_dashboard");
-        }
       }
     }
   };
@@ -132,7 +118,6 @@ function LoginPage() {
   };
 
   useEffect(() => {
-    handleRedirection();
   }, []);
 
   return (

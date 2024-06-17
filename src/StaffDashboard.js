@@ -10,6 +10,10 @@ import {
   Tab,
   Box,
   Grid,
+  MenuItem, FormControl, FormHelperText, Select,
+  TextField,
+  Button,
+  Alert
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
@@ -32,6 +36,7 @@ import {
 } from "./components/staff_component";
 
 function StaffDashboardPage() {
+
   const navigate = useNavigate();
 
   const userData = useFetchUserData();
@@ -46,7 +51,44 @@ function StaffDashboardPage() {
   const [selectedWardData, setSelectedWardData] = useState(null);
   const [selectedSupplyData, setSelectedSupplyData] = useState(null);
 
+  const [isUpdateFormVisible, setUpdateDisplayState] = useState(true);
+  const [isSupplyUpdatedState, setIsSupplyUpdated] = useState(null)
+
+  const [isOrderFormVisible, setOrderDisplayState] = useState(false)
+  const [isOrderProcessed, setIsOrderProcessed] = useState(null);
+
   const [tabValue, setTabValue] = useState(0);
+
+  const [updateFormData, setUpdateFormData] = useState({
+    ItemName: '',
+    QuantityInStock: '',
+    ReorderLevel: '',
+    CostPerUnit: ''
+  })
+
+  const [orders, setOrders] = useState([
+    { ItemName: '', QuantityInStock: '', ReorderLevel: '', CostPerUnit: '' },
+  ]);
+
+  const handleUpdateChange = (e) => {
+    const { name, value, checked, type } = e.target;
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleOrderChange = (index, e) => {
+    const { name, value, checked, type } = e.target;
+    setOrders((prevOrders) => {
+      const updatedOrders = [...prevOrders];
+      updatedOrders[index] = {
+        ...updatedOrders[index],
+        [name]: type === 'checkbox' ? checked : value,
+      };
+      return updatedOrders;
+    });
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -59,6 +101,71 @@ function StaffDashboardPage() {
   const handleSelectSupplyChange = (event) => {
     setSelectedSupply(event.target.value);
   };
+
+  const handleSubmitUpdateSupply = async (e) => {
+    e.preventDefault()
+    console.log(updateFormData)
+
+    const { data: updateSupplyData, error } = await serveSupabaseClient.from("Supply")
+      .update({
+        ItemName: updateFormData.ItemName,
+        QuantityInStock: updateFormData.QuantityInStock,
+        ReorderLevel: updateFormData.ReorderLevel,
+        CostPerUnit: updateFormData.CostPerUnit
+      }).eq("ItemName", updateFormData.ItemName).select("*")
+
+    if (error) {
+      setIsSupplyUpdated(false)
+      console.error(error.message)
+    } else {
+      setIsSupplyUpdated(true)
+    }
+
+    console.log(updateSupplyData)
+
+  }
+
+  const handleAddOrder = () => {
+    setOrders((prevOrders) => [
+      ...prevOrders,
+      { ItemName: '', QuantityInStock: '', ReorderLevel: '', CostPerUnit: '' },
+    ]);
+  };
+
+  const handleRemoveOrder = (index) => {
+    const updatedOrders = orders.filter((order, i) => i !== index);
+    setOrders(updatedOrders);
+  };
+
+  const handleSubmitOrders = async (e) => {
+    e.preventDefault();
+
+    orders.forEach(async (order) => {
+
+      const { data: fetchedSupplyData, error } = await serveSupabaseClient.from("Supply")
+        .select("ItemName, ItemDescription, Category").eq("ItemName", order.ItemName).single()
+
+      const { data: insertSupplyData, error: insertSupplyError } = await serveSupabaseClient.from("Supply")
+        .insert({
+          ItemName: fetchedSupplyData.ItemName,
+          ItemDescription: fetchedSupplyData.ItemDescription,
+          Category: fetchedSupplyData.Category,
+          QuantityInStock: order.QuantityInStock,
+          ReorderLevel: order.ReorderLevel,
+          CostPerUnit: order.CostPerUnit
+        })
+
+      if (insertSupplyError) {
+        console.error(insertSupplyError)
+        setIsOrderProcessed(false)
+      } else {
+        setIsOrderProcessed(true)
+      }
+
+    });
+
+  };
+
 
   useEffect(() => {
     const handleRedirection = async () => {
@@ -73,7 +180,6 @@ function StaffDashboardPage() {
 
       if (!currentSession) {
         navigate("/");
-      } else {
       }
     };
 
@@ -103,10 +209,27 @@ function StaffDashboardPage() {
       }
     };
 
+    if (isSupplyUpdatedState !== null) {
+      const timer = setTimeout(() => {
+        setIsSupplyUpdated(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (isOrderProcessed !== null) {
+      const timer = setTimeout(() => {
+        setIsOrderProcessed(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+
     renderSelectedWard();
     renderSelectedSupply();
     handleRedirection();
-  }, [selectedWard, selectedSupply, navigate]);
+
+  }, [selectedWard, selectedSupply, navigate, isSupplyUpdatedState]);
 
   return (
     <Container fixed>
@@ -140,12 +263,142 @@ function StaffDashboardPage() {
 
             {/* SUPPLIES */}
             <TabPanel value={tabValue} index={1}>
+              <Stack direction="row" gap={1}>
+                <Button variant="outlined" onClick={() => setUpdateDisplayState(prevState => !prevState)}>
+                  Update supply
+                </Button>
+                <Button variant="outlined" onClick={() => setOrderDisplayState(prevState => !prevState)}>
+                  Order supply
+                </Button>
+              </Stack>
+
               <SuppliesComponent
                 value={selectedSupply}
                 handleSelectSupplyChange={handleSelectSupplyChange}
                 supplies={supplies}
                 selectedSupplyData={selectedSupplyData}
               />
+
+              {isUpdateFormVisible ?
+                <Stack direction="row" component="form" onSubmit={handleSubmitUpdateSupply} spacing={2} sx={{ padding: 2 }}>
+                  <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+                    <FormHelperText>Select a supply to update</FormHelperText>
+                    <Select value={updateFormData.ItemName} onChange={handleUpdateChange} name="ItemName" displayEmpty required>
+                      {supplies !== supplies.length ? (
+                        supplies.map((e) => (
+                          <MenuItem key={e.ItemName} value={e.ItemName}>
+                            {e.ItemName}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled>
+                          <Skeleton animation="wave" width={100} />
+                        </MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                  <Stack direction="row" gap={1}>
+                    <TextField type="number" required label="Cost per unit" variant="outlined" onChange={handleUpdateChange} value={updateFormData.CostPerUnit} name="CostPerUnit" />
+                    <TextField type="number" required label="Quantity in stock" variant="outlined" onChange={handleUpdateChange} value={updateFormData.QuantityInStock} name="QuantityInStock" />
+                    <TextField type="number" required label="Reorder level" variant="outlined" onChange={handleUpdateChange} value={updateFormData.ReorderLevel} name="ReorderLevel" />
+                    <Button variant="outlined" type="submit">Update</Button>
+                  </Stack>
+                  {isSupplyUpdatedState !== null && (
+                    <Alert severity={isSupplyUpdatedState ? "success" : "error"}>
+                      {isSupplyUpdatedState ? "Supply updated" : "Supply error"}
+                    </Alert>
+                  )}
+                </Stack> :
+                <></>}
+
+              {isOrderFormVisible && (
+                <Stack
+                  direction="column"
+                  component="form"
+                  onSubmit={handleSubmitOrders}
+                  spacing={2}
+                  sx={{ padding: 2, flexWrap: 'wrap' }}
+                >
+                  <Box maxWidth={640} sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
+                    <Button variant="contained" onClick={handleAddOrder}>
+                      Add order
+                    </Button>
+                    <Button variant="outlined" type="submit">
+                      Order the supplies
+                    </Button>
+                    {isOrderProcessed !== null && (
+                      <Alert severity={isOrderProcessed ? "success" : "error"}>
+                        {isOrderProcessed ? "Supply ordered" : "Supply error"}
+                      </Alert>
+                    )}
+                  </Box>
+                  {orders.map((order, index) => (
+                    <Stack
+                      key={index}
+                      direction="row"
+                      spacing={2}
+                      sx={{ padding: 2, flexWrap: 'wrap' }}
+                    >
+                      <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+                        <FormHelperText>Select a supply to order</FormHelperText>
+                        <Select
+                          value={order.ItemName}
+                          onChange={(e) => handleOrderChange(index, e)}
+                          name="ItemName"
+                          displayEmpty
+                          required
+                        >
+                          {supplies.length > 0 ? (
+                            supplies.map((supply) => (
+                              <MenuItem key={supply.ItemName} value={supply.ItemName}>
+                                {supply.ItemName}
+                              </MenuItem>
+                            ))
+                          ) : (
+                            <MenuItem disabled>
+                              <Skeleton animation="wave" width={100} />
+                            </MenuItem>
+                          )}
+                        </Select>
+                      </FormControl>
+                      <Stack direction="row" gap={1}>
+                        <TextField
+                          type="number"
+                          required
+                          label="Cost per unit"
+                          variant="outlined"
+                          onChange={(e) => handleOrderChange(index, e)}
+                          value={order.CostPerUnit}
+                          name="CostPerUnit"
+                        />
+                        <TextField
+                          type="number"
+                          required
+                          label="Quantity in stock"
+                          variant="outlined"
+                          onChange={(e) => handleOrderChange(index, e)}
+                          value={order.QuantityInStock}
+                          name="QuantityInStock"
+                        />
+                        <TextField
+                          type="number"
+                          required
+                          label="Reorder level"
+                          variant="outlined"
+                          onChange={(e) => handleOrderChange(index, e)}
+                          value={order.ReorderLevel}
+                          name="ReorderLevel"
+                        />
+
+                        <Button variant="contained" color="error" onClick={() => handleRemoveOrder(index)}>
+                          Drop
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
+
             </TabPanel>
             {/* SUPPLIES */}
 
@@ -245,8 +498,9 @@ function StaffDashboardPage() {
           <Skeleton animation="wave" />
           <Skeleton animation="wave" />
         </>
-      )}
-    </Container>
+      )
+      }
+    </Container >
   );
 }
 

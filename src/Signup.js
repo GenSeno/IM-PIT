@@ -73,8 +73,6 @@ function SignupPage() {
         return;
       }
 
-      const { user } = signUpData;
-
       const { data: insertUserLoginData, error: insertUserLoginError } =
         await serveSupabaseClient.from("Userlogin").insert([
           {
@@ -91,6 +89,7 @@ function SignupPage() {
       }
 
       const { data: authUser } = await serveSupabaseClient.auth.getUser();
+
       const { data: userData, error: userDataError } = await serveSupabaseClient
         .from("Userlogin")
         .select("id")
@@ -99,7 +98,17 @@ function SignupPage() {
 
       const userlogin_id = userData.id;
 
+      console.log(insertUserLoginData)
+      console.log(authUser)
+      console.log(userData)
+
       if (formData.userType == "staff") {
+
+        const startDate = new Date(formData.workExperienceStartDate).toISOString().split('T')[0];
+        const endDate = new Date(formData.workExperienceEndDate).toISOString().split('T')[0];
+        const qualificationDate = new Date(formData.qualificationDate).toISOString().split('T')[0];
+        const dateOfBirth = new Date(formData.dateOfBirth).toISOString().split('T')[0];
+
         const {
           data: insertWorkExperienceData,
           error: insertWorkExperienceError,
@@ -107,8 +116,8 @@ function SignupPage() {
           .from("WorkExperience")
           .insert([
             {
-              StartDate: formData.workExperienceStartDate,
-              EndDate: formData.workExperienceEndDate,
+              StartDate: startDate,
+              EndDate: endDate,
               Position: formData.workExperiencePosition,
               OrganizationName: formData.workExperienceOrganization,
             },
@@ -128,7 +137,7 @@ function SignupPage() {
           .from("Qualification")
           .insert([
             {
-              QualificationDate: formData.qualificationDate,
+              QualificationDate: qualificationDate,
               QualificationType: formData.qualificationType,
               InstitutionName: formData.qualificationInstitution,
             },
@@ -148,7 +157,7 @@ function SignupPage() {
               LastName: formData.lastName,
               FullAddress: formData.address,
               TelephoneNumber: formData.phoneNumber,
-              DateOfBirth: formData.dateOfBirth,
+              DateOfBirth: dateOfBirth,
               Sex: formData.sex,
               userlogin_id: userlogin_id,
               ExperienceID: insertWorkExperienceData[0].ExperienceID,
@@ -213,27 +222,27 @@ function SignupPage() {
     }
   };
 
-  const handleRedirection = async () => {
-    const {
-      data: { session: currentSession },
-      error,
-    } = await serveSupabaseClient.auth.getSession();
-
-    if (error) {
-      console.error("Error fetching session:", error.message);
-      return;
-    }
-
-    if (currentSession) {
-      navigate("/dashboard");
-    } else {
-      console.log("No session found.");
-    }
-  };
-
   useEffect(() => {
-    handleRedirection();
-  }, []);
+
+    const handleRedirection = async () => {
+      const {
+        data: { session: currentSession },
+        error,
+      } = await serveSupabaseClient.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching session:", error.message);
+      }
+
+      if (currentSession) {
+        navigate("/dashboard");
+      } else {
+        console.log("No session found.");
+      }
+    };
+
+  }, [])
+
 
   return (
     <Container
@@ -518,13 +527,16 @@ function SignupPage() {
 
         <Typography variant="body2" align="center">
           Already have an account?{" "}
-          <Link href="/login" color="secondary">
+          <Link href="/" color="secondary">
             Log In
           </Link>
         </Typography>
       </Stack>
     </Container>
   );
+
+
+
 }
 
 export default SignupPage;
