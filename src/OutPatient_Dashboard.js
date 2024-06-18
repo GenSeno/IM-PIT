@@ -31,7 +31,7 @@ function MedicationForm({ medicationData }) {
   );
 }
 
-function PatientDashboardPage() {
+function OutPatientDashboardPage() {
   const patient = useFetchPatientData();
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
@@ -78,9 +78,8 @@ function PatientDashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchFunction = patient.PatientType === 'inpatient' ? 'InPatient' : 'OutPatient';
       const { data: fetchedData, error: fetchedError } = await serveSupabaseClient
-        .from(fetchFunction)
+        .from('OutPatient')
         .select('*')
         .eq('PatientID', patient.PatientID)
         .single();
@@ -129,11 +128,6 @@ function PatientDashboardPage() {
                 <Typography variant="body1" fontWeight={400} sx={{ textTransform: 'capitalize' }}>
                   Marital Status: {patient.MaritalStatus}
                 </Typography>
-                {patient.Ward && (
-                  <Typography variant="body1" fontWeight={700}>
-                    Assigned to: {patient.Ward.WardName} ({patient.Ward.Location})
-                  </Typography>
-                )}
               </Box>
 
               {patient.NextOfKin && (
@@ -242,4 +236,4 @@ function PatientDashboardPage() {
   );
 }
 
-export default PatientDashboardPage;
+export default OutPatientDashboardPage;

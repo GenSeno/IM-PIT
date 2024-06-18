@@ -1,7 +1,6 @@
 import {
   ArrowBack,
   AccountCircle,
-  ArrowDownwardRounded,
 } from "@mui/icons-material";
 import {
   Stack,
@@ -10,25 +9,12 @@ import {
   Skeleton,
   Box,
   Avatar,
-  Container,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Tabs,
-  Tab,
-  Grid,
-  MenuItem,
-  FormControl,
-  FormHelperText,
-  Select,
   TextField,
-  Alert,
 } from "@mui/material";
-import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import serveSupabaseClient from "../client/client";
 
-function PatientDashboardHeader(props) {
+export function PatientDashboardHeader(props) {
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
@@ -138,14 +124,78 @@ function PatientDashboardHeader(props) {
   );
 }
 
-function RegistrationForm() {
+export function RegistrationForm() {
   return (
     <Stack direction="column" spacing={2}>
-      <TextField label="First Name" variant="outlined" fullWidth />
-      <TextField label="Last Name" variant="outlined" fullWidth />
-      <TextField label="Email" type="email" variant="outlined" fullWidth />
-      <TextField label="Address" variant="outlined" fullWidth />
-      <TextField label="Phone Number" variant="outlined" fullWidth />
+      <Typography variant="h6">Personal Details</Typography>
+      <TextField
+        label="First Name"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Last Name"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Address"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Sex"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Telephone Number"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Date of Birth"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Date Registered"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+
+      <Typography variant="h6">Local Doctor Details</Typography>
+      <TextField
+        label="Doctor's Name"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Doctor's Phone Number"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+      <TextField
+        label="Clinic Address"
+        variant="outlined"
+        fullWidth
+        InputProps={{ readOnly: true }}
+      />
+
+      <Typography variant="h6">Next-of-Kin Details</Typography>
+      <TextField label="Next-of-Kin Name" variant="outlined" fullWidth />
+      <TextField label="Next-of-Kin Relationship" variant="outlined" fullWidth />
+      <TextField label="Next-of-Kin Phone Number" variant="outlined" fullWidth />
+
       <Button variant="contained" color="primary">
         Register
       </Button>
@@ -153,57 +203,4 @@ function RegistrationForm() {
   );
 }
 
-function MedicationForm() {
-  return (
-    <Stack direction="column" spacing={2}>
-      <TextField label="Medication Name" variant="outlined" fullWidth />
-      <TextField label="Dosage" variant="outlined" fullWidth />
-      <TextField label="Frequency" variant="outlined" fullWidth />
-      <TextField label="Start Date" type="date" variant="outlined" fullWidth />
-      <TextField label="End Date" type="date" variant="outlined" fullWidth />
-      <Button variant="contained" color="primary">
-        Prescribe
-      </Button>
-    </Stack>
-  );
-}
-
-function PatientDashboardPage(props) {
-  const navigate = useNavigate();
-
-  const [tabValue, setTabValue] = useState(0);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-
-  return (
-    <Container fixed>
-      <PatientDashboardHeader patient={props.patient} />
-
-      <Stack
-        sx={{ borderBottom: 1, borderColor: "divider" }}
-        direction="row"
-        marginTop={2}
-        marginBottom={2}
-      >
-        <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="Registration Form" />
-          <Tab label="Medication Form" />
-        </Tabs>
-      </Stack>
-
-      {/* Registration Form */}
-      <Box hidden={tabValue !== 0}>
-        <RegistrationForm />
-      </Box>
-
-      {/* Medication Form */}
-      <Box hidden={tabValue !== 1}>
-        <MedicationForm />
-      </Box>
-    </Container>
-  );
-}
-
-export default PatientDashboardPage;
+export default PatientDashboardHeader;

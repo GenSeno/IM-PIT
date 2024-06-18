@@ -183,7 +183,7 @@ export const useFetchPatientData = () => {
         const { data: fetchedPatientData, error: patientDataError } =
           await serveSupabaseClient
             .from("Patient")
-            .select("*")
+            .select("PatientID, Ward (WardID, WardName, Location, TotalBeds, TelephoneExtension), FirstName, LastName, FullAddress, TelephoneNumber, DateOfBirth, Sex, PatientType, MaritalStatus, RegistrationDate, Userlogin_ID, NextOfKinID, NextOfKin (PNKFullName, RelationshipToPatient, Address, TelephoneNumber), Doctor (FullName, Address, TelephoneNumber)")
             .eq("Userlogin_ID", userProfile.id)
             .single(); // Assuming you expect only one patient data object
 
@@ -191,6 +191,8 @@ export const useFetchPatientData = () => {
           console.error("Error fetching patient data:", patientDataError);
           return;
         }
+
+        console.log(fetchedPatientData)
 
         setPatientData(fetchedPatientData);
       }
@@ -204,4 +206,26 @@ export const useFetchPatientData = () => {
   }, []);
 
   return patientData;
+};
+
+
+export const useFetchMedications = () => {
+  const [medications, setMedications] = useState(null);
+
+  const fetchMedications = async () => {
+    const { data: medicationsData, error: medicationsDataError } =
+      await serveSupabaseClient.from("Medication").select("*");
+
+    if (medicationsDataError) {
+      console.error("Error fetching medications data:", medicationsDataError);
+    } else {
+      setMedications(medicationsData);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedications();
+  }, []);
+
+  return medications;
 };

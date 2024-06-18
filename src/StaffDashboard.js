@@ -35,6 +35,9 @@ import {
   StaffsWithPositionsComponent,
 } from "./components/staff_component";
 
+
+
+
 function StaffDashboardPage() {
 
   const navigate = useNavigate();
@@ -230,10 +233,13 @@ function StaffDashboardPage() {
     handleRedirection();
 
   }, [selectedWard, selectedSupply, navigate, isSupplyUpdatedState]);
+  
 
   return (
     <Container fixed>
       <StaffDashboardHeader userData={userData} />
+
+
 
       {userData != null ? (
         userData[0].PositionHeld != null ? (
@@ -419,72 +425,123 @@ function StaffDashboardPage() {
             </TabPanel>
             {/* STAFFS */}
 
-            <TabPanel value={tabValue} index={3}>
-              <Stack direction="column" gap={2} flexWrap="wrap">
-                {patients != null ? (
-                  patients.map((e) => (
-                    <Stack component="div" key={e.SupplyID}>
-                      <Accordion>
-                        <AccordionSummary expandIcon={<ArrowDownwardRounded />}>
-                          <Typography
-                            variant="body1"
-                            fontWeight={500}
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            {e.FirstName} {e.LastName}
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Typography variant="body1" color="text.secondary">
-                            <b>Patient Number:</b> {e.PatientID}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            <b>Patient Type:</b> {e.PatientType}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            <b>Marital Status:</b> {e.MaritalStatus}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            <b>Address:</b> {e.FullAddress}
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            <b>Registration Date:</b> {e.RegistrationDate}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
-                          >
-                            <b> Sex:</b> {e.Sex}
-                          </Typography>
-                          <Typography variant="body1" color="text.secondary">
-                            <b>Telephone Number:</b> {e.TelephoneNumber}
-                          </Typography>
-                        </AccordionDetails>
-                      </Accordion>
-                    </Stack>
-                  ))
-                ) : (
-                  <Box sx={{ p: 2, width: "100%" }}>
-                    <Skeleton animation="wave" />
-                    <Skeleton animation="wave" />
-                    <Skeleton animation="wave" />
-                  </Box>
-                )}
-              </Stack>
-            </TabPanel>
+
+          {/* PATIENTS */}
+          <TabPanel value={tabValue} index={3}>
+            <Stack direction="column" gap={2} flexWrap="wrap">
+              {patients ? (
+                patients.map((patient) => (
+                  <Stack component="div" key={patient.PatientID}>
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ArrowDownwardRounded />}>
+                        <Typography
+                          variant="body1"
+                          fontWeight={500}
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          {patient.FirstName} {patient.LastName}
+                        </Typography>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Typography variant="body1" color="text.secondary">
+                          <b>Patient Number:</b> {patient.PatientID}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          <b>Patient Type:</b> {patient.PatientType}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          <b>Marital Status:</b> {patient.MaritalStatus}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          <b>Address:</b> {patient.FullAddress}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                          <b>Registration Date:</b> {patient.RegistrationDate}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          <b>Sex:</b> {patient.Sex}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                          <b>Telephone Number:</b> {patient.TelephoneNumber}
+                        </Typography>
+                        {/* Form for adding medication */}
+                        <Box
+                          component="form"
+                          sx={{
+                            '& .MuiTextField-root': { m: 1, width: '25ch' },
+                            mt: 2,
+                          }}
+                          noValidate
+                          autoComplete="off"
+                        >
+                          <Typography variant="h6">Add Medication</Typography>
+                          <TextField
+                            required
+                            label="Item Name"
+                            name="ItemName"
+                          />
+                          <TextField
+                            required
+                            label="Units Per Day"
+                            name="UnitsPerDay"
+                          />
+                          <TextField
+                            required
+                            label="Administration Method"
+                            name="AdministrationMethod"
+                          />
+                          <TextField
+                            required
+                            type="date"
+                            label="Start Date"
+                            name="StartDate"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                          <TextField
+                            required
+                            type="date"
+                            label="End Date"
+                            name="EndDate"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                          <Button variant="contained" type="submit">
+                            Add Medication
+                          </Button>
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+                  </Stack>
+                ))
+              ) : (
+                <Box sx={{ p: 2, width: "100%" }}>
+                  <Skeleton animation="wave" />
+                  <Skeleton animation="wave" />
+                  <Skeleton animation="wave" />
+                </Box>
+              )}
+            </Stack>
+          </TabPanel>
+
           </>
         ) : (
           <Typography variant="body1">

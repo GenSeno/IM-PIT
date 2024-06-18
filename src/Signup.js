@@ -33,6 +33,7 @@ function SignupPage() {
     address: "",
     dateOfBirth: dayjs(),
     sex: "",
+    maritalStatus: "",
     userType: "",
     patientType: "",
     terms: false,
@@ -184,6 +185,7 @@ function SignupPage() {
                 TelephoneNumber: formData.phoneNumber,
                 DateOfBirth: formData.dateOfBirth,
                 Sex: formData.sex,
+                MaritalStatus: formData.maritalStatus,
                 PatientType: formData.patientType,
                 RegistrationDate: dayjs(),
                 Userlogin_ID: userlogin_id,
@@ -403,6 +405,34 @@ function SignupPage() {
                 value="outpatient"
                 control={<Radio />}
                 label="Outpatient"
+              />
+            </RadioGroup>
+            <FormLabel component="legend">Marital Status</FormLabel>
+            <RadioGroup
+              name="maritalStatus"
+              value={formData.maritalStatus}
+              onChange={handleChange}
+              row
+            >
+              <FormControlLabel
+                value="Single"
+                control={<Radio />}
+                label="Single"
+              />
+              <FormControlLabel
+                value="Married"
+                control={<Radio />}
+                label="Married"
+              />
+              <FormControlLabel
+                value="Divorced"
+                control={<Radio />}
+                label="Divorced"
+              />
+              <FormControlLabel
+                value="Widowed"
+                control={<Radio />}
+                label="Widowed"
               />
             </RadioGroup>
           </>
