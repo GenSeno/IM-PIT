@@ -207,25 +207,3 @@ export const useFetchPatientData = () => {
 
   return patientData;
 };
-
-
-export const useFetchMedications = () => {
-  const [medications, setMedications] = useState(null);
-
-  const fetchMedications = async () => {
-    const { data: medicationsData, error: medicationsDataError } =
-      await serveSupabaseClient.from("Medication").select("*");
-
-    if (medicationsDataError) {
-      console.error("Error fetching medications data:", medicationsDataError);
-    } else {
-      setMedications(medicationsData);
-    }
-  };
-
-  useEffect(() => {
-    fetchMedications();
-  }, []);
-
-  return medications;
-};

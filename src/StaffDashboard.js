@@ -489,6 +489,7 @@ function StaffDashboardPage() {
                           }}
                           noValidate
                           autoComplete="off"
+
                         >
                           <Typography variant="h6">Add Medication</Typography>
                           <TextField
