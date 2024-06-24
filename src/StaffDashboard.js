@@ -10,10 +10,13 @@ import {
   Tab,
   Box,
   Grid,
-  MenuItem, FormControl, FormHelperText, Select,
+  MenuItem,
+  FormControl,
+  FormHelperText,
+  Select,
   TextField,
   Button,
-  Alert
+  Alert,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import serveSupabaseClient from "./client/client";
@@ -35,11 +38,7 @@ import {
   StaffsWithPositionsComponent,
 } from "./components/staff_component";
 
-
-
-
 function StaffDashboardPage() {
-
   const navigate = useNavigate();
 
   const userData = useFetchUserData();
@@ -49,28 +48,28 @@ function StaffDashboardPage() {
   const patients = useFetchPatients();
 
   const [selectedWard, setSelectedWard] = useState("Oncology");
-  const [selectedSupply, setSelectedSupply] = useState("Gloves");
+  const [selectedSupply, setSelectedSupply] = useState("Amoxicillin");
 
   const [selectedWardData, setSelectedWardData] = useState(null);
   const [selectedSupplyData, setSelectedSupplyData] = useState(null);
 
   const [isUpdateFormVisible, setUpdateDisplayState] = useState(true);
-  const [isSupplyUpdatedState, setIsSupplyUpdated] = useState(null)
+  const [isSupplyUpdatedState, setIsSupplyUpdated] = useState(null);
 
-  const [isOrderFormVisible, setOrderDisplayState] = useState(false)
+  const [isOrderFormVisible, setOrderDisplayState] = useState(false);
   const [isOrderProcessed, setIsOrderProcessed] = useState(null);
 
   const [tabValue, setTabValue] = useState(0);
 
   const [updateFormData, setUpdateFormData] = useState({
-    ItemName: '',
-    QuantityInStock: '',
-    ReorderLevel: '',
-    CostPerUnit: ''
-  })
+    ItemName: "",
+    QuantityInStock: "",
+    ReorderLevel: "",
+    CostPerUnit: "",
+  });
 
   const [orders, setOrders] = useState([
-    { ItemName: '', QuantityInStock: '', ReorderLevel: '', CostPerUnit: '' },
+    { ItemName: "", QuantityInStock: "", ReorderLevel: "", CostPerUnit: "" },
   ]);
 
   const handleUpdateChange = (e) => {
@@ -87,8 +86,9 @@ function StaffDashboardPage() {
       const updatedOrders = [...prevOrders];
       updatedOrders[index] = {
         ...updatedOrders[index],
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: type === "checkbox" ? checked : value,
       };
+      console.log(updatedOrders);
       return updatedOrders;
     });
   };
@@ -106,32 +106,34 @@ function StaffDashboardPage() {
   };
 
   const handleSubmitUpdateSupply = async (e) => {
-    e.preventDefault()
-    console.log(updateFormData)
+    e.preventDefault();
+    console.log(updateFormData);
 
-    const { data: updateSupplyData, error } = await serveSupabaseClient.from("Supply")
+    const { data: updateSupplyData, error } = await serveSupabaseClient
+      .from("Supply")
       .update({
         ItemName: updateFormData.ItemName,
         QuantityInStock: updateFormData.QuantityInStock,
         ReorderLevel: updateFormData.ReorderLevel,
-        CostPerUnit: updateFormData.CostPerUnit
-      }).eq("ItemName", updateFormData.ItemName).select("*")
+        CostPerUnit: updateFormData.CostPerUnit,
+      })
+      .eq("ItemName", updateFormData.ItemName)
+      .select("*");
 
     if (error) {
-      setIsSupplyUpdated(false)
-      console.error(error.message)
+      setIsSupplyUpdated(false);
+      console.error(error.message);
     } else {
-      setIsSupplyUpdated(true)
+      setIsSupplyUpdated(true);
     }
 
-    console.log(updateSupplyData)
-
-  }
+    console.log(updateSupplyData);
+  };
 
   const handleAddOrder = () => {
     setOrders((prevOrders) => [
       ...prevOrders,
-      { ItemName: '', QuantityInStock: '', ReorderLevel: '', CostPerUnit: '' },
+      { ItemName: "", QuantityInStock: "", ReorderLevel: "", CostPerUnit: "" },
     ]);
   };
 
@@ -144,31 +146,50 @@ function StaffDashboardPage() {
     e.preventDefault();
 
     orders.forEach(async (order) => {
-
-      const { data: fetchedSupplyData, error } = await serveSupabaseClient.from("Supply")
-        .select("ItemName, ItemDescription, Category").eq("ItemName", order.ItemName).single()
-
-      const { data: insertSupplyData, error: insertSupplyError } = await serveSupabaseClient.from("Supply")
-        .insert({
-          ItemName: fetchedSupplyData.ItemName,
-          ItemDescription: fetchedSupplyData.ItemDescription,
-          Category: fetchedSupplyData.Category,
-          QuantityInStock: order.QuantityInStock,
-          ReorderLevel: order.ReorderLevel,
-          CostPerUnit: order.CostPerUnit
-        })
-
-      if (insertSupplyError) {
-        console.error(insertSupplyError)
-        setIsOrderProcessed(false)
+      if (order == null) {
+        return;
       } else {
-        setIsOrderProcessed(true)
+        const { data: fetchedSupplyData, error: selectSupplyDataError } =
+          await serveSupabaseClient
+            .from("Supply")
+            .select("ItemName, ItemDescription, Category")
+            .eq("ItemName", order.ItemName);
+
+        if (selectSupplyDataError) {
+          console.error(selectSupplyDataError);
+          return;
+        } else {
+          console.log(fetchedSupplyData);
+        }
+
+        const { data: insertSupplyData, error: insertSupplyError } =
+          await serveSupabaseClient.from("Supply").insert({
+            ItemName: fetchedSupplyData[0].ItemName,
+            ItemDescription: fetchedSupplyData[0].ItemDescription,
+            Category: fetchedSupplyData[0].Category,
+            QuantityInStock: order.QuantityInStock,
+            ReorderLevel: order.ReorderLevel,
+            CostPerUnit: order.CostPerUnit,
+          });
+
+        if (insertSupplyError) {
+          console.error(insertSupplyError);
+          setIsOrderProcessed(false);
+        } else {
+          console.log(insertSupplyData);
+          setIsOrderProcessed(true);
+          setOrders([
+            {
+              ItemName: "",
+              QuantityInStock: "",
+              ReorderLevel: "",
+              CostPerUnit: "",
+            },
+          ]);
+        }
       }
-
     });
-
   };
-
 
   useEffect(() => {
     const handleRedirection = async () => {
@@ -231,15 +252,11 @@ function StaffDashboardPage() {
     renderSelectedWard();
     renderSelectedSupply();
     handleRedirection();
-
   }, [selectedWard, selectedSupply, navigate, isSupplyUpdatedState]);
-  
 
   return (
     <Container fixed>
       <StaffDashboardHeader userData={userData} />
-
-
 
       {userData != null ? (
         userData[0].PositionHeld != null ? (
@@ -270,10 +287,20 @@ function StaffDashboardPage() {
             {/* SUPPLIES */}
             <TabPanel value={tabValue} index={1}>
               <Stack direction="row" gap={1}>
-                <Button variant="outlined" onClick={() => setUpdateDisplayState(prevState => !prevState)}>
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    setUpdateDisplayState((prevState) => !prevState)
+                  }
+                >
                   Update supply
                 </Button>
-                <Button variant="outlined" onClick={() => setOrderDisplayState(prevState => !prevState)}>
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    setOrderDisplayState((prevState) => !prevState)
+                  }
+                >
                   Order supply
                 </Button>
               </Stack>
@@ -285,16 +312,30 @@ function StaffDashboardPage() {
                 selectedSupplyData={selectedSupplyData}
               />
 
-              {isUpdateFormVisible ?
-                <Stack direction="row" component="form" onSubmit={handleSubmitUpdateSupply} spacing={2} sx={{ padding: 2 }}>
-                  <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+              {isUpdateFormVisible ? (
+                <Stack
+                  direction="row"
+                  component="form"
+                  onSubmit={handleSubmitUpdateSupply}
+                  spacing={2}
+                  sx={{ padding: 2 }}
+                >
+                  <FormControl
+                    variant="outlined"
+                    size="small"
+                    sx={{ minWidth: 200 }}
+                  >
                     <FormHelperText>Select a supply to update</FormHelperText>
-                    <Select value={updateFormData.ItemName} onChange={handleUpdateChange} name="ItemName" displayEmpty required>
+                    <Select
+                      value={updateFormData.ItemName}
+                      onChange={handleUpdateChange}
+                      name="ItemName"
+                      displayEmpty
+                      required
+                    >
                       {supplies !== supplies.length ? (
                         supplies.map((e) => (
-                          <MenuItem key={e.ItemName} value={e.ItemName}>
-                            {e.ItemName}
-                          </MenuItem>
+                          <MenuItem value={e.ItemName}>{e.ItemName}</MenuItem>
                         ))
                       ) : (
                         <MenuItem disabled>
@@ -304,18 +345,48 @@ function StaffDashboardPage() {
                     </Select>
                   </FormControl>
                   <Stack direction="row" gap={1}>
-                    <TextField type="number" required label="Cost per unit" variant="outlined" onChange={handleUpdateChange} value={updateFormData.CostPerUnit} name="CostPerUnit" />
-                    <TextField type="number" required label="Quantity in stock" variant="outlined" onChange={handleUpdateChange} value={updateFormData.QuantityInStock} name="QuantityInStock" />
-                    <TextField type="number" required label="Reorder level" variant="outlined" onChange={handleUpdateChange} value={updateFormData.ReorderLevel} name="ReorderLevel" />
-                    <Button variant="outlined" type="submit">Update</Button>
+                    <TextField
+                      type="number"
+                      required
+                      label="Cost per unit"
+                      variant="outlined"
+                      onChange={handleUpdateChange}
+                      value={updateFormData.CostPerUnit}
+                      name="CostPerUnit"
+                    />
+                    <TextField
+                      type="number"
+                      required
+                      label="Quantity in stock"
+                      variant="outlined"
+                      onChange={handleUpdateChange}
+                      value={updateFormData.QuantityInStock}
+                      name="QuantityInStock"
+                    />
+                    <TextField
+                      type="number"
+                      required
+                      label="Reorder level"
+                      variant="outlined"
+                      onChange={handleUpdateChange}
+                      value={updateFormData.ReorderLevel}
+                      name="ReorderLevel"
+                    />
+                    <Button variant="outlined" type="submit">
+                      Update
+                    </Button>
                   </Stack>
                   {isSupplyUpdatedState !== null && (
-                    <Alert severity={isSupplyUpdatedState ? "success" : "error"}>
+                    <Alert
+                      severity={isSupplyUpdatedState ? "success" : "error"}
+                    >
                       {isSupplyUpdatedState ? "Supply updated" : "Supply error"}
                     </Alert>
                   )}
-                </Stack> :
-                <></>}
+                </Stack>
+              ) : (
+                <></>
+              )}
 
               {isOrderFormVisible && (
                 <Stack
@@ -323,9 +394,12 @@ function StaffDashboardPage() {
                   component="form"
                   onSubmit={handleSubmitOrders}
                   spacing={2}
-                  sx={{ padding: 2, flexWrap: 'wrap' }}
+                  sx={{ padding: 2, flexWrap: "wrap" }}
                 >
-                  <Box maxWidth={640} sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
+                  <Box
+                    maxWidth={640}
+                    sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                  >
                     <Button variant="contained" onClick={handleAddOrder}>
                       Add order
                     </Button>
@@ -343,10 +417,16 @@ function StaffDashboardPage() {
                       key={index}
                       direction="row"
                       spacing={2}
-                      sx={{ padding: 2, flexWrap: 'wrap' }}
+                      sx={{ padding: 2, flexWrap: "wrap" }}
                     >
-                      <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
-                        <FormHelperText>Select a supply to order</FormHelperText>
+                      <FormControl
+                        variant="outlined"
+                        size="small"
+                        sx={{ minWidth: 200 }}
+                      >
+                        <FormHelperText>
+                          Select a supply to order
+                        </FormHelperText>
                         <Select
                           value={order.ItemName}
                           onChange={(e) => handleOrderChange(index, e)}
@@ -356,7 +436,7 @@ function StaffDashboardPage() {
                         >
                           {supplies.length > 0 ? (
                             supplies.map((supply) => (
-                              <MenuItem key={supply.ItemName} value={supply.ItemName}>
+                              <MenuItem value={supply.ItemName}>
                                 {supply.ItemName}
                               </MenuItem>
                             ))
@@ -396,7 +476,11 @@ function StaffDashboardPage() {
                           name="ReorderLevel"
                         />
 
-                        <Button variant="contained" color="error" onClick={() => handleRemoveOrder(index)}>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleRemoveOrder(index)}
+                        >
                           Drop
                         </Button>
                       </Stack>
@@ -404,7 +488,6 @@ function StaffDashboardPage() {
                   ))}
                 </Stack>
               )}
-
             </TabPanel>
             {/* SUPPLIES */}
 
@@ -425,124 +508,121 @@ function StaffDashboardPage() {
             </TabPanel>
             {/* STAFFS */}
 
-
-          {/* PATIENTS */}
-          <TabPanel value={tabValue} index={3}>
-            <Stack direction="column" gap={2} flexWrap="wrap">
-              {patients ? (
-                patients.map((patient) => (
-                  <Stack component="div" key={patient.PatientID}>
-                    <Accordion>
-                      <AccordionSummary expandIcon={<ArrowDownwardRounded />}>
-                        <Typography
-                          variant="body1"
-                          fontWeight={500}
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          {patient.FirstName} {patient.LastName}
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Typography variant="body1" color="text.secondary">
-                          <b>Patient Number:</b> {patient.PatientID}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          <b>Patient Type:</b> {patient.PatientType}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          <b>Marital Status:</b> {patient.MaritalStatus}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          <b>Address:</b> {patient.FullAddress}
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                          <b>Registration Date:</b> {patient.RegistrationDate}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          <b>Sex:</b> {patient.Sex}
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                          <b>Telephone Number:</b> {patient.TelephoneNumber}
-                        </Typography>
-                        {/* Form for adding medication */}
-                        <Box
-                          component="form"
-                          sx={{
-                            '& .MuiTextField-root': { m: 1, width: '25ch' },
-                            mt: 2,
-                          }}
-                          noValidate
-                          autoComplete="off"
-
-                        >
-                          <Typography variant="h6">Add Medication</Typography>
-                          <TextField
-                            required
-                            label="Item Name"
-                            name="ItemName"
-                          />
-                          <TextField
-                            required
-                            label="Units Per Day"
-                            name="UnitsPerDay"
-                          />
-                          <TextField
-                            required
-                            label="Administration Method"
-                            name="AdministrationMethod"
-                          />
-                          <TextField
-                            required
-                            type="date"
-                            label="Start Date"
-                            name="StartDate"
-                            InputLabelProps={{
-                              shrink: true,
+            {/* PATIENTS */}
+            <TabPanel value={tabValue} index={3}>
+              <Stack direction="column" gap={2} flexWrap="wrap">
+                {patients ? (
+                  patients.map((patient) => (
+                    <Stack component="div" key={patient.PatientID}>
+                      <Accordion>
+                        <AccordionSummary expandIcon={<ArrowDownwardRounded />}>
+                          <Typography
+                            variant="body1"
+                            fontWeight={500}
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {patient.FirstName} {patient.LastName}
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography variant="body1" color="text.secondary">
+                            <b>Patient Number:</b> {patient.PatientID}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            <b>Patient Type:</b> {patient.PatientType}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            <b>Marital Status:</b> {patient.MaritalStatus}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            <b>Address:</b> {patient.FullAddress}
+                          </Typography>
+                          <Typography variant="body1" color="text.secondary">
+                            <b>Registration Date:</b> {patient.RegistrationDate}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            <b>Sex:</b> {patient.Sex}
+                          </Typography>
+                          <Typography variant="body1" color="text.secondary">
+                            <b>Telephone Number:</b> {patient.TelephoneNumber}
+                          </Typography>
+                          {/* Form for adding medication */}
+                          <Box
+                            component="form"
+                            sx={{
+                              "& .MuiTextField-root": { m: 1, width: "25ch" },
+                              mt: 2,
                             }}
-                          />
-                          <TextField
-                            required
-                            type="date"
-                            label="End Date"
-                            name="EndDate"
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                          />
-                          <Button variant="contained" type="submit">
-                            Add Medication
-                          </Button>
-                        </Box>
-                      </AccordionDetails>
-                    </Accordion>
-                  </Stack>
-                ))
-              ) : (
-                <Box sx={{ p: 2, width: "100%" }}>
-                  <Skeleton animation="wave" />
-                  <Skeleton animation="wave" />
-                  <Skeleton animation="wave" />
-                </Box>
-              )}
-            </Stack>
-          </TabPanel>
-
+                            noValidate
+                            autoComplete="off"
+                          >
+                            <Typography variant="h6">Add Medication</Typography>
+                            <TextField
+                              required
+                              label="Item Name"
+                              name="ItemName"
+                            />
+                            <TextField
+                              required
+                              label="Units Per Day"
+                              name="UnitsPerDay"
+                            />
+                            <TextField
+                              required
+                              label="Administration Method"
+                              name="AdministrationMethod"
+                            />
+                            <TextField
+                              required
+                              type="date"
+                              label="Start Date"
+                              name="StartDate"
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                            <TextField
+                              required
+                              type="date"
+                              label="End Date"
+                              name="EndDate"
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                            <Button variant="contained" type="submit">
+                              Add Medication
+                            </Button>
+                          </Box>
+                        </AccordionDetails>
+                      </Accordion>
+                    </Stack>
+                  ))
+                ) : (
+                  <Box sx={{ p: 2, width: "100%" }}>
+                    <Skeleton animation="wave" />
+                    <Skeleton animation="wave" />
+                    <Skeleton animation="wave" />
+                  </Box>
+                )}
+              </Stack>
+            </TabPanel>
           </>
         ) : (
           <Typography variant="body1">
@@ -556,9 +636,8 @@ function StaffDashboardPage() {
           <Skeleton animation="wave" />
           <Skeleton animation="wave" />
         </>
-      )
-      }
-    </Container >
+      )}
+    </Container>
   );
 }
 

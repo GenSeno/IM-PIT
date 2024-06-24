@@ -19,11 +19,7 @@ function SuppliesSelectComponent(props) {
       <FormHelperText>Select a supply to display</FormHelperText>
       <Select value={value} onChange={onChange} displayEmpty>
         {data !== data.length ? (
-          data.map((e) => (
-            <MenuItem key={e.ItemName} value={e.ItemName}>
-              {e.ItemName}
-            </MenuItem>
-          ))
+          data.map((e) => <MenuItem value={e.ItemName}>{e.ItemName}</MenuItem>)
         ) : (
           <MenuItem disabled>
             <Skeleton animation="wave" width={100} />
@@ -42,9 +38,16 @@ function SuppliesComponent(props) {
     selectedSupplyData,
   } = props;
 
-  const displayData = selectedSupplyData && selectedSupplyData.length > 0
-    ? selectedSupplyData[0]
-    : { ItemDescription: "", Category: "", CostPerUnit: "", QuantityInStock: "", ReorderLevel: "" };
+  const displayData =
+    selectedSupplyData && selectedSupplyData.length > 0
+      ? selectedSupplyData[0]
+      : {
+          ItemDescription: "",
+          Category: "",
+          CostPerUnit: "",
+          QuantityInStock: "",
+          ReorderLevel: "",
+        };
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -94,7 +97,5 @@ function SuppliesComponent(props) {
     </Box>
   );
 }
-
-
 
 export default SuppliesComponent;

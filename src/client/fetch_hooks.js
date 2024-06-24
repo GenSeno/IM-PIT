@@ -183,7 +183,9 @@ export const useFetchPatientData = () => {
         const { data: fetchedPatientData, error: patientDataError } =
           await serveSupabaseClient
             .from("Patient")
-            .select("PatientID, Ward (WardID, WardName, Location, TotalBeds, TelephoneExtension), FirstName, LastName, FullAddress, TelephoneNumber, DateOfBirth, Sex, PatientType, MaritalStatus, RegistrationDate, Userlogin_ID, NextOfKinID, NextOfKin (PNKFullName, RelationshipToPatient, Address, TelephoneNumber), Doctor (FullName, Address, TelephoneNumber)")
+            .select(
+              "PatientID, Ward (WardID, WardName, Location, TotalBeds, TelephoneExtension), FirstName, LastName, FullAddress, TelephoneNumber, DateOfBirth, Sex, PatientType, MaritalStatus, RegistrationDate, Userlogin_ID, NextOfKinID, NextOfKin (PNKFullName, RelationshipToPatient, Address, TelephoneNumber), Doctor (FullName, Address, TelephoneNumber)"
+            )
             .eq("Userlogin_ID", userProfile.id)
             .single(); // Assuming you expect only one patient data object
 
@@ -192,7 +194,7 @@ export const useFetchPatientData = () => {
           return;
         }
 
-        console.log(fetchedPatientData)
+        console.log(fetchedPatientData);
 
         setPatientData(fetchedPatientData);
       }
