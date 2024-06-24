@@ -224,7 +224,6 @@ function StaffDashboardPage() {
       return;
     } else {
       setIsMedicationDataProcessed(true);
-      console.log(data);
     }
   };
 
