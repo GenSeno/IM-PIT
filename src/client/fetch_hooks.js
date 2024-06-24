@@ -194,8 +194,6 @@ export const useFetchPatientData = () => {
           return;
         }
 
-        console.log(fetchedPatientData);
-
         setPatientData(fetchedPatientData);
       }
     } catch (error) {

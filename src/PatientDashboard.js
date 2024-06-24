@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Skeleton, Stack, Tabs, Tab, Box, Typography, TextField, Button, Divider } from '@mui/material';
-import { useFetchPatientData } from './client/fetch_hooks';
-import serveSupabaseClient from './client/client';
-import PatientDashboardHeader from './components/patient_dashboard_header';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Skeleton,
+  Stack,
+  Tabs,
+  Tab,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Divider,
+} from "@mui/material";
+import { useFetchPatientData } from "./client/fetch_hooks";
+import serveSupabaseClient from "./client/client";
+import PatientDashboardHeader from "./components/patient_dashboard_header";
 
 function MedicationForm({ medicationData }) {
   return (
     <Stack spacing={2}>
-      <Typography variant="h5" fontWeight={700}>
-        Medication Details
-      </Typography>
-      <Divider />
       <Typography variant="body1" fontWeight={400}>
         Item Name: {medicationData.ItemName}
       </Typography>
@@ -33,14 +40,17 @@ function MedicationForm({ medicationData }) {
 
 function PatientDashboardPage() {
   const patient = useFetchPatientData();
+  const [medications, setMedicationData] = useState(null);
+
   const navigate = useNavigate();
+
   const [tabValue, setTabValue] = useState(0);
   const [fetchedData, setFetchedData] = useState(null);
   const [nextOfKinFormData, setNextOfKinFormData] = useState({
-    PNKFullName: '',
-    RelationshipToPatient: '',
-    Address: '',
-    TelephoneNumber: '',
+    PNKFullName: "",
+    RelationshipToPatient: "",
+    Address: "",
+    TelephoneNumber: "",
   });
 
   const handleTabChange = (event, newValue) => {
@@ -51,39 +61,61 @@ function PatientDashboardPage() {
     const { name, value, checked, type } = e.target;
     setNextOfKinFormData((prevData) => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleNextOfKinSubmit = async (e) => {
     e.preventDefault();
-    const { data: nextOfKinData, error: insertError } = await serveSupabaseClient
-      .from('NextOfKin')
-      .insert({
-        PNKFullName: nextOfKinFormData.PNKFullName,
-        RelationshipToPatient: nextOfKinFormData.RelationshipToPatient,
-        Address: nextOfKinFormData.Address,
-        TelephoneNumber: nextOfKinFormData.TelephoneNumber,
-      })
-      .select('NextOfKinID')
-      .single();
+    const { data: nextOfKinData, error: insertError } =
+      await serveSupabaseClient
+        .from("NextOfKin")
+        .insert({
+          PNKFullName: nextOfKinFormData.PNKFullName,
+          RelationshipToPatient: nextOfKinFormData.RelationshipToPatient,
+          Address: nextOfKinFormData.Address,
+          TelephoneNumber: nextOfKinFormData.TelephoneNumber,
+        })
+        .select("NextOfKinID")
+        .single();
 
     const { data: patientData, error: updateError } = await serveSupabaseClient
-      .from('Patient')
+      .from("Patient")
       .update({ NextOfKinID: nextOfKinData.NextOfKinID })
-      .eq('PatientID', patient.PatientID);
+      .eq("PatientID", patient.PatientID);
 
     window.location.reload();
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchFunction = patient.PatientType === 'inpatient' ? 'InPatient' : 'OutPatient';
-      const { data: fetchedData, error: fetchedError } = await serveSupabaseClient
-        .from(fetchFunction)
-        .select('*')
-        .eq('PatientID', patient.PatientID)
-        .single();
+      const fetchFunction =
+        patient.PatientType === "inpatient" ? "InPatient" : "OutPatient";
+
+      const { data: fetchedData, error: fetchedError } =
+        await serveSupabaseClient
+          .from(fetchFunction)
+          .select("*")
+          .eq("PatientID", patient.PatientID)
+          .single();
+
+      if (patient.PatientType == "inpatient") {
+        const {
+          data: fetchedMedicationsData,
+          error: queryMedicationDataError,
+        } = await serveSupabaseClient
+          .from("Medication")
+          .select("*, Supply (*)")
+          .eq("PatientID", patient.PatientID);
+
+        if (queryMedicationDataError) {
+          console.error(queryMedicationDataError.message);
+          return;
+        }
+
+        console.log(fetchedMedicationsData);
+        setMedicationData(fetchedMedicationsData);
+      }
 
       setFetchedData(fetchedData);
     };
@@ -98,7 +130,12 @@ function PatientDashboardPage() {
       {fetchedData ? (
         <>
           <PatientDashboardHeader patient={patient} fetchedData={fetchedData} />
-          <Stack sx={{ borderBottom: 1, borderColor: 'divider' }} direction="row" marginTop={2} marginBottom={2}>
+          <Stack
+            sx={{ borderBottom: 1, borderColor: "divider" }}
+            direction="row"
+            marginTop={2}
+            marginBottom={2}
+          >
             <Tabs value={tabValue} onChange={handleTabChange}>
               <Tab label="Patient Details" />
               <Tab label="Medication Form" />
@@ -123,15 +160,24 @@ function PatientDashboardPage() {
                 <Typography variant="body1" fontWeight={400}>
                   Registration Date: {patient.RegistrationDate}
                 </Typography>
-                <Typography variant="body1" fontWeight={400} sx={{ textTransform: 'capitalize' }}>
+                <Typography
+                  variant="body1"
+                  fontWeight={400}
+                  sx={{ textTransform: "capitalize" }}
+                >
                   Sex: {patient.Sex}
                 </Typography>
-                <Typography variant="body1" fontWeight={400} sx={{ textTransform: 'capitalize' }}>
+                <Typography
+                  variant="body1"
+                  fontWeight={400}
+                  sx={{ textTransform: "capitalize" }}
+                >
                   Marital Status: {patient.MaritalStatus}
                 </Typography>
                 {patient.Ward && (
                   <Typography variant="body1" fontWeight={700}>
-                    Assigned to: {patient.Ward.WardName} ({patient.Ward.Location})
+                    Assigned to: {patient.Ward.WardName} (
+                    {patient.Ward.Location})
                   </Typography>
                 )}
               </Box>
@@ -179,16 +225,22 @@ function PatientDashboardPage() {
 
           {/* Medication Form */}
           <Box hidden={tabValue !== 1}>
+            <Typography variant="h5" fontWeight={700}>
+              Medication Details
+            </Typography>
+            <Divider />
             <Box border={1} borderRadius={2} p={2} mb={2}>
-              <MedicationForm
-                medicationData={{
-                  ItemName: fetchedData.ItemName,
-                  UnitsPerDay: fetchedData.UnitsPerDay,
-                  AdministrationMethod: fetchedData.AdministrationMethod,
-                  StartDate: fetchedData.StartDate,
-                  EndDate: fetchedData.EndDate,
-                }}
-              />
+              {medications.map((data) => (
+                <MedicationForm
+                  medicationData={{
+                    ItemName: data.Supply.ItemName,
+                    UnitsPerDay: data.UnitsPerDay,
+                    AdministrationMethod: data.AdministrationMethod,
+                    StartDate: data.StartDate,
+                    EndDate: data.EndDate,
+                  }}
+                />
+              ))}
             </Box>
           </Box>
 
@@ -199,7 +251,12 @@ function PatientDashboardPage() {
                 Next of Kin Form
               </Typography>
               <Divider />
-              <Stack spacing={2} direction="column" component="form" onSubmit={handleNextOfKinSubmit}>
+              <Stack
+                spacing={2}
+                direction="column"
+                component="form"
+                onSubmit={handleNextOfKinSubmit}
+              >
                 <TextField
                   label="Full Name"
                   variant="outlined"
