@@ -560,7 +560,7 @@ function StaffDashboardPage() {
             {/* STAFFS */}
 
             {/* PATIENTS */}
-            <TabPanel value={tabValue} index={3}>
+            <TabPanel value={tabValue} index={3} style={{ background: 'linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)', padding: '16px', borderRadius: '8px' }}>
               <Stack direction="column" gap={2} flexWrap="wrap">
                 {patients ? (
                   patients.map((patient) => (
@@ -570,7 +570,7 @@ function StaffDashboardPage() {
                           <Typography
                             variant="body1"
                             fontWeight={500}
-                            style={{ textTransform: "capitalize" }}
+                            style={{ textTransform: 'capitalize' }}
                           >
                             {patient.FirstName} {patient.LastName}
                           </Typography>
@@ -582,21 +582,21 @@ function StaffDashboardPage() {
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
+                            style={{ textTransform: 'capitalize' }}
                           >
                             <b>Patient Type:</b> {patient.PatientType}
                           </Typography>
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
+                            style={{ textTransform: 'capitalize' }}
                           >
                             <b>Marital Status:</b> {patient.MaritalStatus}
                           </Typography>
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
+                            style={{ textTransform: 'capitalize' }}
                           >
                             <b>Address:</b> {patient.FullAddress}
                           </Typography>
@@ -606,105 +606,121 @@ function StaffDashboardPage() {
                           <Typography
                             variant="body1"
                             color="text.secondary"
-                            style={{ textTransform: "capitalize" }}
+                            style={{ textTransform: 'capitalize' }}
                           >
                             <b>Sex:</b> {patient.Sex}
                           </Typography>
                           <Typography variant="body1" color="text.secondary">
                             <b>Telephone Number:</b> {patient.TelephoneNumber}
                           </Typography>
+                          
                           {/* Form for adding medication */}
                           <Box
                             component="form"
                             sx={{
-                              "& .MuiTextField-root": { m: 1, width: "25ch" },
-                              mt: 2,
-                              alignItems: "center",
+                              background: 'linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)',
+                              padding: '16px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                             }}
                             noValidate
                             autoComplete="off"
-                            onSubmit={(e) =>
-                              handleSubmitMedication(e, patient.PatientID)
-                            }
+                            onSubmit={(e) => handleSubmitMedication(e, patient.PatientID)}
                           >
-                            <Typography variant="h6">Add Medication</Typography>
-                            <input
-                              type="hidden"
-                              name="PatientID"
-                              value={patient.PatientID}
-                            />
-                            <Select
-                              value={medicationFormData.SupplyID}
-                              onChange={handleMedicationFormDataChange}
-                              name="SupplyID"
-                              displayEmpty
-                              sx={{ minWidth: 180 }}
-                              required
-                            >
-                              {supplies && supplies.length > 0 ? (
-                                supplies.map((e) => (
-                                  <MenuItem key={e.SupplyID} value={e.SupplyID}>
-                                    {e.ItemName}
-                                  </MenuItem>
-                                ))
-                              ) : (
-                                <MenuItem disabled>
-                                  <Skeleton animation="wave" width={100} />
-                                </MenuItem>
-                              )}
-                            </Select>
-                            <TextField
-                              required
-                              label="Units Per Day"
-                              name="UnitsPerDay"
-                              onChange={handleMedicationFormDataChange}
-                              value={medicationFormData.UnitsPerDay}
-                            />
-                            <TextField
-                              required
-                              label="Administration Method"
-                              name="AdministrationMethod"
-                              onChange={handleMedicationFormDataChange}
-                              value={medicationFormData.AdministrationMethod}
-                            />
-                            <TextField
-                              required
-                              type="date"
-                              label="Start Date"
-                              name="StartDate"
-                              onChange={handleMedicationFormDataChange}
-                              value={medicationFormData.StartDate}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                            />
-                            <TextField
-                              required
-                              type="date"
-                              label="End Date"
-                              name="EndDate"
-                              onChange={handleMedicationFormDataChange}
-                              value={medicationFormData.EndDate}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                            />
-                            <Button variant="contained" type="submit">
+                            <Typography variant="h6" gutterBottom>
                               Add Medication
-                            </Button>
-                            {isMedicationDataProcessed !== null && (
-                              <Alert
-                                severity={
-                                  isMedicationDataProcessed
-                                    ? "success"
-                                    : "error"
-                                }
-                              >
-                                {isMedicationDataProcessed
-                                  ? "Medication added"
-                                  : "Medication error"}
-                              </Alert>
-                            )}
+                            </Typography>
+                            <Grid container spacing={2}>
+                              <Grid item xs={12} sm={6}>
+                                <input type="hidden" name="PatientID" value={patient.PatientID} />
+                                <Select
+                                  fullWidth
+                                  value={medicationFormData.SupplyID}
+                                  onChange={handleMedicationFormDataChange}
+                                  name="SupplyID"
+                                  displayEmpty
+                                  required
+                                >
+                                  {supplies && supplies.length > 0 ? (
+                                    supplies.map((supply) => (
+                                      <MenuItem key={supply.SupplyID} value={supply.SupplyID}>
+                                        {supply.ItemName}
+                                      </MenuItem>
+                                    ))
+                                  ) : (
+                                    <MenuItem disabled>
+                                      <Skeleton animation="wave" width={100} />
+                                    </MenuItem>
+                                  )}
+                                </Select>
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  required
+                                  label="Units Per Day"
+                                  name="UnitsPerDay"
+                                  onChange={handleMedicationFormDataChange}
+                                  value={medicationFormData.UnitsPerDay}
+                                />
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  required
+                                  label="Administration Method"
+                                  name="AdministrationMethod"
+                                  onChange={handleMedicationFormDataChange}
+                                  value={medicationFormData.AdministrationMethod}
+                                />
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  required
+                                  type="date"
+                                  label="Start Date"
+                                  name="StartDate"
+                                  onChange={handleMedicationFormDataChange}
+                                  value={medicationFormData.StartDate}
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                />
+                              </Grid>
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  required
+                                  type="date"
+                                  label="End Date"
+                                  name="EndDate"
+                                  onChange={handleMedicationFormDataChange}
+                                  value={medicationFormData.EndDate}
+                                  InputLabelProps={{
+                                    shrink: true,
+                                  }}
+                                />
+                              </Grid>
+                              <Grid item xs={12}>
+                                <Button
+                                  variant="contained"
+                                  type="submit"
+                                  fullWidth
+                                  sx={{ marginTop: '16px' }}
+                                >
+                                  Add Medication
+                                </Button>
+                                {isMedicationDataProcessed !== null && (
+                                  <Alert
+                                    severity={isMedicationDataProcessed ? 'success' : 'error'}
+                                    sx={{ marginTop: '16px' }}
+                                  >
+                                    {isMedicationDataProcessed ? 'Medication added' : 'Medication error'}
+                                  </Alert>
+                                )}
+                              </Grid>
+                            </Grid>
                           </Box>
                         </AccordionDetails>
                       </Accordion>

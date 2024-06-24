@@ -4,6 +4,7 @@ async function insertMedication(medicationData) {
   const { data, error } = await supabase
     .from('Medication')
     .insert([medicationData])
+    .eq('PatientID', patientID);
 
   if (error) {
     console.error('Error inserting data:', error)
