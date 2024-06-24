@@ -68,9 +68,28 @@ function StaffDashboardPage() {
     CostPerUnit: "",
   });
 
+  const [medicationFormData, setMedicationFormData] = useState({
+    PatientID: "",
+    SupplyID: "",
+    UnitsPerDay: "",
+    AdministrationMethod: "",
+    StartDate: "",
+    EndDate: "",
+  });
+  const [isMedicationDataProcessed, setIsMedicationDataProcessed] =
+    useState(null);
+
   const [orders, setOrders] = useState([
     { ItemName: "", QuantityInStock: "", ReorderLevel: "", CostPerUnit: "" },
   ]);
+
+  const handleMedicationFormDataChange = (e) => {
+    const { name, value, checked, type } = e.target;
+    setMedicationFormData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleUpdateChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -88,7 +107,6 @@ function StaffDashboardPage() {
         ...updatedOrders[index],
         [name]: type === "checkbox" ? checked : value,
       };
-      console.log(updatedOrders);
       return updatedOrders;
     });
   };
@@ -107,7 +125,6 @@ function StaffDashboardPage() {
 
   const handleSubmitUpdateSupply = async (e) => {
     e.preventDefault();
-    console.log(updateFormData);
 
     const { data: updateSupplyData, error } = await serveSupabaseClient
       .from("Supply")
@@ -126,8 +143,6 @@ function StaffDashboardPage() {
     } else {
       setIsSupplyUpdated(true);
     }
-
-    console.log(updateSupplyData);
   };
 
   const handleAddOrder = () => {
@@ -158,8 +173,6 @@ function StaffDashboardPage() {
         if (selectSupplyDataError) {
           console.error(selectSupplyDataError);
           return;
-        } else {
-          console.log(fetchedSupplyData);
         }
 
         const { data: insertSupplyData, error: insertSupplyError } =
@@ -176,7 +189,6 @@ function StaffDashboardPage() {
           console.error(insertSupplyError);
           setIsOrderProcessed(false);
         } else {
-          console.log(insertSupplyData);
           setIsOrderProcessed(true);
           setOrders([
             {
@@ -189,6 +201,31 @@ function StaffDashboardPage() {
         }
       }
     });
+  };
+
+  const handleSubmitMedication = async (e, patientID) => {
+    e.preventDefault();
+    // Add logic to handle form submission, e.g., sending data to the server
+    console.log({ ...medicationFormData, PatientID: patientID });
+
+    const { data, error } = await serveSupabaseClient
+      .from("Medication")
+      .insert({
+        PatientID: patientID,
+        UnitsPerDay: medicationFormData.UnitsPerDay,
+        AdministrationMethod: medicationFormData.AdministrationMethod,
+        StartDate: medicationFormData.StartDate,
+        EndDate: medicationFormData.EndDate,
+        SupplyID: medicationFormData.SupplyID,
+      });
+
+    if (error) {
+      console.error(error.message);
+      return;
+    } else {
+      setIsMedicationDataProcessed(true);
+      console.log(data);
+    }
   };
 
   useEffect(() => {
@@ -249,10 +286,25 @@ function StaffDashboardPage() {
       return () => clearTimeout(timer);
     }
 
+    if (isMedicationDataProcessed !== null) {
+      const timer = setTimeout(() => {
+        setIsMedicationDataProcessed(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+
     renderSelectedWard();
     renderSelectedSupply();
     handleRedirection();
-  }, [selectedWard, selectedSupply, navigate, isSupplyUpdatedState]);
+  }, [
+    selectedWard,
+    selectedSupply,
+    navigate,
+    isSupplyUpdatedState,
+    isOrderProcessed,
+    isMedicationDataProcessed,
+  ]);
 
   return (
     <Container fixed>
@@ -568,31 +620,61 @@ function StaffDashboardPage() {
                             sx={{
                               "& .MuiTextField-root": { m: 1, width: "25ch" },
                               mt: 2,
+                              alignItems: "center",
                             }}
                             noValidate
                             autoComplete="off"
+                            onSubmit={(e) =>
+                              handleSubmitMedication(e, patient.PatientID)
+                            }
                           >
                             <Typography variant="h6">Add Medication</Typography>
-                            <TextField
-                              required
-                              label="Item Name"
-                              name="ItemName"
+                            <input
+                              type="hidden"
+                              name="PatientID"
+                              value={patient.PatientID}
                             />
+                            <Select
+                              value={medicationFormData.SupplyID}
+                              onChange={handleMedicationFormDataChange}
+                              name="SupplyID"
+                              displayEmpty
+                              sx={{ minWidth: 180 }}
+                              required
+                            >
+                              {supplies && supplies.length > 0 ? (
+                                supplies.map((e) => (
+                                  <MenuItem key={e.SupplyID} value={e.SupplyID}>
+                                    {e.ItemName}
+                                  </MenuItem>
+                                ))
+                              ) : (
+                                <MenuItem disabled>
+                                  <Skeleton animation="wave" width={100} />
+                                </MenuItem>
+                              )}
+                            </Select>
                             <TextField
                               required
                               label="Units Per Day"
                               name="UnitsPerDay"
+                              onChange={handleMedicationFormDataChange}
+                              value={medicationFormData.UnitsPerDay}
                             />
                             <TextField
                               required
                               label="Administration Method"
                               name="AdministrationMethod"
+                              onChange={handleMedicationFormDataChange}
+                              value={medicationFormData.AdministrationMethod}
                             />
                             <TextField
                               required
                               type="date"
                               label="Start Date"
                               name="StartDate"
+                              onChange={handleMedicationFormDataChange}
+                              value={medicationFormData.StartDate}
                               InputLabelProps={{
                                 shrink: true,
                               }}
@@ -602,6 +684,8 @@ function StaffDashboardPage() {
                               type="date"
                               label="End Date"
                               name="EndDate"
+                              onChange={handleMedicationFormDataChange}
+                              value={medicationFormData.EndDate}
                               InputLabelProps={{
                                 shrink: true,
                               }}
@@ -609,6 +693,19 @@ function StaffDashboardPage() {
                             <Button variant="contained" type="submit">
                               Add Medication
                             </Button>
+                            {isMedicationDataProcessed !== null && (
+                              <Alert
+                                severity={
+                                  isMedicationDataProcessed
+                                    ? "success"
+                                    : "error"
+                                }
+                              >
+                                {isMedicationDataProcessed
+                                  ? "Medication added"
+                                  : "Medication error"}
+                              </Alert>
+                            )}
                           </Box>
                         </AccordionDetails>
                       </Accordion>
