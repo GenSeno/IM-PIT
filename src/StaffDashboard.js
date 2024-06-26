@@ -313,16 +313,20 @@ function StaffDashboardPage() {
         userData[0].PositionHeld != null ? (
           <>
             <Stack
-              sx={{ borderBottom: 1, borderColor: "divider" }}
-              direction="row"
-            >
-              <Tabs value={tabValue} onChange={handleTabChange}>
-                <Tab label="Wards" />
-                <Tab label="Supplies" />
-                <Tab label="Staffs" />
-                <Tab label="Patients" />
-              </Tabs>
-            </Stack>
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            justifyContent="center" 
+            borderBottom={1}
+            sx={{ borderColor: 'divider', marginBottom: '20px' }}
+          >
+            <Tabs value={tabValue} onChange={handleTabChange} textColor="primary" indicatorColor="primary">
+              <Tab label="Wards" />
+              <Tab label="Supplies" />
+              <Tab label="Staffs" />
+              <Tab label="Patients" />
+            </Tabs>
+          </Stack>
 
             {/* WARDS */}
             <TabPanel value={tabValue} index={0}>
@@ -337,208 +341,192 @@ function StaffDashboardPage() {
 
             {/* SUPPLIES */}
             <TabPanel value={tabValue} index={1}>
-              <Stack direction="row" gap={1}>
+              <Stack direction="row" gap={1} sx={{ marginBottom: 2 }}>
                 <Button
                   variant="outlined"
-                  onClick={() =>
-                    setUpdateDisplayState((prevState) => !prevState)
-                  }
+                  onClick={() => setUpdateDisplayState((prevState) => !prevState)}
                 >
                   Update supply
                 </Button>
                 <Button
                   variant="outlined"
-                  onClick={() =>
-                    setOrderDisplayState((prevState) => !prevState)
-                  }
+                  onClick={() => setOrderDisplayState((prevState) => !prevState)}
                 >
                   Order supply
                 </Button>
               </Stack>
 
-              <SuppliesComponent
-                value={selectedSupply}
-                handleSelectSupplyChange={handleSelectSupplyChange}
-                supplies={supplies}
-                selectedSupplyData={selectedSupplyData}
-              />
+              <Box
+                sx={{
+                  background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
+                  padding: 2,
+                  borderRadius: 4,
+                }} 
+              >
 
-              {isUpdateFormVisible ? (
-                <Stack
-                  direction="row"
-                  component="form"
-                  onSubmit={handleSubmitUpdateSupply}
-                  spacing={2}
-                  sx={{ padding: 2 }}
-                >
-                  <FormControl
-                    variant="outlined"
-                    size="small"
-                    sx={{ minWidth: 200 }}
+
+          {tabValue === 1 && (
+                <SuppliesComponent
+                  value={selectedSupply}
+                  handleSelectSupplyChange={handleSelectSupplyChange}
+                  supplies={supplies}
+                  selectedSupplyData={selectedSupplyData}
+                />
+              )}
+  
+
+                {/* UPDATE SUPPLY */}
+                {isUpdateFormVisible && (
+                  <Stack
+                    direction="column"
+                    component="form"
+                    onSubmit={handleSubmitUpdateSupply}
+                    spacing={2}
+                    sx={{ padding: 2, backgroundColor: "white", borderRadius: 4 }}
                   >
-                    <FormHelperText>Select a supply to update</FormHelperText>
-                    <Select
-                      value={updateFormData.ItemName}
-                      onChange={handleUpdateChange}
-                      name="ItemName"
-                      displayEmpty
-                      required
-                    >
-                      {supplies !== supplies.length ? (
-                        supplies.map((e) => (
-                          <MenuItem value={e.ItemName}>{e.ItemName}</MenuItem>
-                        ))
-                      ) : (
-                        <MenuItem disabled>
-                          <Skeleton animation="wave" width={100} />
-                        </MenuItem>
-                      )}
-                    </Select>
-                  </FormControl>
-                  <Stack direction="row" gap={1}>
-                    <TextField
-                      type="number"
-                      required
-                      label="Cost per unit"
-                      variant="outlined"
-                      onChange={handleUpdateChange}
-                      value={updateFormData.CostPerUnit}
-                      name="CostPerUnit"
-                    />
-                    <TextField
-                      type="number"
-                      required
-                      label="Quantity in stock"
-                      variant="outlined"
-                      onChange={handleUpdateChange}
-                      value={updateFormData.QuantityInStock}
-                      name="QuantityInStock"
-                    />
-                    <TextField
-                      type="number"
-                      required
-                      label="Reorder level"
-                      variant="outlined"
-                      onChange={handleUpdateChange}
-                      value={updateFormData.ReorderLevel}
-                      name="ReorderLevel"
-                    />
-                    <Button variant="outlined" type="submit">
+                    <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+                      <FormHelperText>Select a supply to update</FormHelperText>
+                      <Select
+                        value={updateFormData.ItemName}
+                        onChange={handleUpdateChange}
+                        name="ItemName"
+                        displayEmpty
+                        required
+                      >
+                        {supplies.map((e) => (
+                          <MenuItem key={e.ItemName} value={e.ItemName}>
+                            {e.ItemName}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <Stack direction="column" spacing={2}>
+                      <TextField
+                        type="number"
+                        required
+                        label="Cost per unit"
+                        variant="outlined"
+                        onChange={handleUpdateChange}
+                        value={updateFormData.CostPerUnit}
+                        name="CostPerUnit"
+                      />
+                      <TextField
+                        type="number"
+                        required
+                        label="Quantity in stock"
+                        variant="outlined"
+                        onChange={handleUpdateChange}
+                        value={updateFormData.QuantityInStock}
+                        name="QuantityInStock"
+                      />
+                      <TextField
+                        type="number"
+                        required
+                        label="Reorder level"
+                        variant="outlined"
+                        onChange={handleUpdateChange}
+                        value={updateFormData.ReorderLevel}
+                        name="ReorderLevel"
+                      />
+                    </Stack>
+
+                    <Button variant="contained" color="primary" type="submit">
                       Update
                     </Button>
-                  </Stack>
-                  {isSupplyUpdatedState !== null && (
-                    <Alert
-                      severity={isSupplyUpdatedState ? "success" : "error"}
-                    >
-                      {isSupplyUpdatedState ? "Supply updated" : "Supply error"}
-                    </Alert>
-                  )}
-                </Stack>
-              ) : (
-                <></>
-              )}
 
-              {isOrderFormVisible && (
-                <Stack
-                  direction="column"
-                  component="form"
-                  onSubmit={handleSubmitOrders}
-                  spacing={2}
-                  sx={{ padding: 2, flexWrap: "wrap" }}
-                >
-                  <Box
-                    maxWidth={640}
-                    sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                    {isSupplyUpdatedState !== null && (
+                      <Alert severity={isSupplyUpdatedState ? "success" : "error"}>
+                        {isSupplyUpdatedState ? "Supply updated" : "Supply error"}
+                      </Alert>
+                    )}
+                  </Stack>
+                )}
+
+                {/* ORDER SUPPLY */}
+                {isOrderFormVisible && (
+                  <Stack
+                    direction="column"
+                    component="form"
+                    onSubmit={handleSubmitOrders}
+                    spacing={2}
+                    sx={{ padding: 2, backgroundColor: "white", borderRadius: 4 }}
                   >
-                    <Button variant="contained" onClick={handleAddOrder}>
-                      Add order
-                    </Button>
-                    <Button variant="outlined" type="submit">
-                      Order the supplies
-                    </Button>
+                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+                      <Button variant="contained" onClick={handleAddOrder}>
+                        Add order
+                      </Button>
+                      <Button variant="outlined" type="submit">
+                        Order the supplies
+                      </Button>
+                    </Box>
+
                     {isOrderProcessed !== null && (
                       <Alert severity={isOrderProcessed ? "success" : "error"}>
                         {isOrderProcessed ? "Supply ordered" : "Supply error"}
                       </Alert>
                     )}
-                  </Box>
-                  {orders.map((order, index) => (
-                    <Stack
-                      key={index}
-                      direction="row"
-                      spacing={2}
-                      sx={{ padding: 2, flexWrap: "wrap" }}
-                    >
-                      <FormControl
-                        variant="outlined"
-                        size="small"
-                        sx={{ minWidth: 200 }}
-                      >
-                        <FormHelperText>
-                          Select a supply to order
-                        </FormHelperText>
-                        <Select
-                          value={order.ItemName}
-                          onChange={(e) => handleOrderChange(index, e)}
-                          name="ItemName"
-                          displayEmpty
-                          required
-                        >
-                          {supplies.length > 0 ? (
-                            supplies.map((supply) => (
-                              <MenuItem value={supply.ItemName}>
+
+                    {orders.map((order, index) => (
+                      <Stack key={index} direction="column" spacing={2}>
+                        <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+                          <FormHelperText>Select a supply to order</FormHelperText>
+                          <Select
+                            value={order.ItemName}
+                            onChange={(e) => handleOrderChange(index, e)}
+                            name="ItemName"
+                            displayEmpty
+                            required
+                          >
+                            {supplies.map((supply) => (
+                              <MenuItem key={supply.ItemName} value={supply.ItemName}>
                                 {supply.ItemName}
                               </MenuItem>
-                            ))
-                          ) : (
-                            <MenuItem disabled>
-                              <Skeleton animation="wave" width={100} />
-                            </MenuItem>
-                          )}
-                        </Select>
-                      </FormControl>
-                      <Stack direction="row" gap={1}>
-                        <TextField
-                          type="number"
-                          required
-                          label="Cost per unit"
-                          variant="outlined"
-                          onChange={(e) => handleOrderChange(index, e)}
-                          value={order.CostPerUnit}
-                          name="CostPerUnit"
-                        />
-                        <TextField
-                          type="number"
-                          required
-                          label="Quantity in stock"
-                          variant="outlined"
-                          onChange={(e) => handleOrderChange(index, e)}
-                          value={order.QuantityInStock}
-                          name="QuantityInStock"
-                        />
-                        <TextField
-                          type="number"
-                          required
-                          label="Reorder level"
-                          variant="outlined"
-                          onChange={(e) => handleOrderChange(index, e)}
-                          value={order.ReorderLevel}
-                          name="ReorderLevel"
-                        />
+                            ))}
+                          </Select>
+                        </FormControl>
 
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() => handleRemoveOrder(index)}
-                        >
-                          Drop
-                        </Button>
+                        <Stack direction="row" spacing={2}>
+                          <TextField
+                            type="number"
+                            required
+                            label="Cost per unit"
+                            variant="outlined"
+                            onChange={(e) => handleOrderChange(index, e)}
+                            value={order.CostPerUnit}
+                            name="CostPerUnit"
+                          />
+                          <TextField
+                            type="number"
+                            required
+                            label="Quantity in stock"
+                            variant="outlined"
+                            onChange={(e) => handleOrderChange(index, e)}
+                            value={order.QuantityInStock}
+                            name="QuantityInStock"
+                          />
+                          <TextField
+                            type="number"
+                            required
+                            label="Reorder level"
+                            variant="outlined"
+                            onChange={(e) => handleOrderChange(index, e)}
+                            value={order.ReorderLevel}
+                            name="ReorderLevel"
+                          />
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleRemoveOrder(index)}
+                          >
+                            Drop
+                          </Button>
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  ))}
-                </Stack>
-              )}
+                    ))}
+                  </Stack>
+                )}
+              </Box>
             </TabPanel>
             {/* SUPPLIES */}
 
@@ -613,6 +601,7 @@ function StaffDashboardPage() {
                           <Typography variant="body1" color="text.secondary">
                             <b>Telephone Number:</b> {patient.TelephoneNumber}
                           </Typography>
+                          <br />
                           
                           {/* Form for adding medication */}
                           <Box

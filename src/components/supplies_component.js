@@ -17,7 +17,10 @@ function SuppliesSelectComponent(props) {
   return (
     <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
       <FormHelperText>Select a supply to display</FormHelperText>
-      <Select value={value} onChange={onChange} displayEmpty>
+      <Select  value={value}
+        onChange={onChange}
+        displayEmpty
+        sx={{ backgroundColor: "white", borderRadius: "4px" }}>
         {data !== data.length ? (
           data.map((e) => <MenuItem value={e.ItemName}>{e.ItemName}</MenuItem>)
         ) : (

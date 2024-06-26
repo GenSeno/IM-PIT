@@ -30,7 +30,7 @@ function StaffDashboardHeader(props) {
         <Box
           sx={{
             width: "97%",
-            backgroundColor: "#f5f5f5",
+            background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             borderRadius: "8px",
             marginBottom: "20px",
@@ -49,8 +49,12 @@ function StaffDashboardHeader(props) {
                 width: 48,
                 height: 48,
                 marginRight: 2,
-                backgroundColor: userData[0].FirstName ? "#a7bed3" : "#bdbdbd",
+                backgroundColor: userData[0].FirstName ? "#00695c" : "#bdbdbd",
                 cursor: "pointer",
+                transition: "transform 0.3s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                },
               }}
             >
               {userData[0].FirstName ? (
@@ -64,7 +68,7 @@ function StaffDashboardHeader(props) {
             <Typography
               variant="h5"
               fontWeight={600}
-              sx={{ textTransform: "capitalize" }}
+              sx={{ textTransform: "capitalize", color: "black" }}
             >
               {userData[0].FirstName
                 ? `${userData[0].FirstName} ${userData[0].LastName}`
@@ -72,7 +76,7 @@ function StaffDashboardHeader(props) {
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "#00695c", textTransform: "capitalize" }}
+              sx={{ color: "#004d40", textTransform: "capitalize" }}
             >
               {userData[0].PositionHeld != null
                 ? userData[0].PositionHeld
@@ -87,10 +91,11 @@ function StaffDashboardHeader(props) {
               textTransform: "none",
               fontWeight: 600,
               borderRadius: "999px",
-              borderColor: "#757575",
+              borderColor: "#004d40",
+              color: "#004d40",
               "&:hover": {
-                borderColor: "#000",
-                backgroundColor: "#e0e0e0",
+                borderColor: "#00251a",
+                backgroundColor: "#e0f2f1",
               },
             }}
           >
@@ -101,7 +106,7 @@ function StaffDashboardHeader(props) {
         <Box
           sx={{
             width: "100%",
-            backgroundColor: "#f5f5f5",
+            background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             borderRadius: "8px",
             marginBottom: "20px",

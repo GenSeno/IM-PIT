@@ -126,7 +126,15 @@ function PatientDashboardPage() {
   }, [patient, fetchedData]);
 
   return (
-    <Container fixed>
+    <Container
+      fixed
+      sx={{
+        background: "linear-gradient(135deg, #e0f7fa 25%, #80deea 100%)",
+        padding: 3,
+        borderRadius: 2,
+        boxShadow: 3,
+      }}
+    >
       {fetchedData ? (
         <>
           <PatientDashboardHeader patient={patient} fetchedData={fetchedData} />
@@ -146,7 +154,7 @@ function PatientDashboardPage() {
           {/* Patient Details */}
           <Box hidden={tabValue !== 0}>
             <Stack spacing={2}>
-              <Box border={1} borderRadius={2} p={2} mb={2}>
+              <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
                 <Typography variant="h5" fontWeight={700}>
                   Personal Details
                 </Typography>
@@ -183,7 +191,7 @@ function PatientDashboardPage() {
               </Box>
 
               {patient.NextOfKin && (
-                <Box border={1} borderRadius={2} p={2} mb={2}>
+                <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
                   <Typography variant="h5" fontWeight={700}>
                     Next of Kin Details
                   </Typography>
@@ -204,7 +212,7 @@ function PatientDashboardPage() {
               )}
 
               {patient.Doctor && (
-                <Box border={1} borderRadius={2} p={2} mb={2}>
+                <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
                   <Typography variant="h5" fontWeight={700}>
                     Doctor Details
                   </Typography>
@@ -225,13 +233,15 @@ function PatientDashboardPage() {
 
           {/* Medication Form */}
           <Box hidden={tabValue !== 1}>
-            <Typography variant="h5" fontWeight={700}>
-              Medication Details
-            </Typography>
-            <Divider />
-            <Box border={1} borderRadius={2} p={2} mb={2}>
+            <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
+              <Typography variant="h5" fontWeight={700}>
+                Medication Details
+              </Typography>
+              <Divider />
+              <br></br>
               {medications.map((data) => (
                 <MedicationForm
+                  key={data.Supply.ItemName}
                   medicationData={{
                     ItemName: data.Supply.ItemName,
                     UnitsPerDay: data.UnitsPerDay,
@@ -246,7 +256,7 @@ function PatientDashboardPage() {
 
           {/* Next of Kin Form */}
           <Box hidden={tabValue !== 2}>
-            <Box border={1} borderRadius={2} p={2} mb={2}>
+            <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
               <Typography variant="h5" fontWeight={700}>
                 Next of Kin Form
               </Typography>
