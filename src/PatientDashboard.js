@@ -99,7 +99,7 @@ function PatientDashboardPage() {
           .eq("PatientID", patient.PatientID)
           .single();
 
-      if (patient.PatientType == "inpatient") {
+      if (patient.PatientType === "inpatient") {
         const {
           data: fetchedMedicationsData,
           error: queryMedicationDataError,
@@ -236,12 +236,10 @@ function PatientDashboardPage() {
             <Box border={1} borderRadius={2} p={2} mb={2} sx={{ backgroundColor: "#ffffffcc" }}>
               <Typography variant="h5" fontWeight={700}>
                 Medication Details
-              </Typography>
+              </Typography> 
               <Divider />
-              <br></br>
-              {medications.map((data) => (
+              {(medications || []).map((data) => (
                 <MedicationForm
-                  key={data.Supply.ItemName}
                   medicationData={{
                     ItemName: data.Supply.ItemName,
                     UnitsPerDay: data.UnitsPerDay,
